@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import * as d3 from 'd3';
-import axios from 'axios';
+// import axios from 'axios';
 const Explorer = (props) => {
 
 
@@ -9,9 +9,6 @@ const Explorer = (props) => {
     let missingData = require("../json/" + jsonFileName + "_missing.json");
     let falseData = require("../json/" + jsonFileName + "_false.json");
     let knnData = require("../json/" + jsonFileName + "_knn.json");
-
-    console.log(data)
-    console.log(missingData, falseData, knnData)
     
 
     const embeddedData = data.map((d, i) => {
@@ -25,16 +22,27 @@ const Explorer = (props) => {
         return embeddedDatum;
     });
 
-    let svg, svgPoints, svgEdges;
-    const width = 1000;
-    const height = 1000;
+    let svg, svgPoints, svgEdges, svgMiniMap;
+    const width = 600;
+    const height = 600;
     const margin = { hor: width / 20, ver: height / 20 };
     const radius = 3;
 
 
     let colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 
+    // const brushed = ({selection}, [i, j]) => {};
+    
+  function brushed({selection: [[x0, y0], [x1, y1]]}) {
+      console.log(x0, y0, x1, y1)
+
+  }
+
     useEffect(() => {
+
+        let brush = d3.brush()
+                      .on("start brush", brushed);
+
 
         svg = d3.select("#scatterplot" + props.dataset + props.method)
                 .attr("width", width + margin.hor * 2)
@@ -87,6 +95,18 @@ const Explorer = (props) => {
                                      .attr("r", radius);
                              }
                          );
+
+        svg.append("g")
+           .call(brush)
+           .call(brush.move, [[width * 0.3, height * 0.1], [width * 0.7, height * 0.4]]);
+        
+        svgMiniMap = d3.select("#minimap")
+                       .attr("width", width + margin.hor * 2)
+                       .attr("height", height + margin.ver * 2)
+
+
+            
+        
     }, [])
     // const loading = async () => {
 
@@ -104,6 +124,7 @@ const Explorer = (props) => {
     return (
         <div>
             <svg id={"scatterplot" + props.dataset + props.method}></svg>
+            <svg id="minimap"></svg>
         </div>
     );
 };
