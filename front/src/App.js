@@ -5,7 +5,11 @@ function App() {
   return (
     <div className="App">
       <header/>
-      <Explorer/>
+      <Explorer
+        method="pca"
+        dataset="mnist_sampled_10"
+        isLabel={true}
+      />
       <footer/>
     </div>
   );
