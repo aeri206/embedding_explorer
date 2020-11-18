@@ -66,7 +66,27 @@ const Explorer = (props) => {
       const tmp = trans.split("translate(")[1].split(",");
       return [parseFloat(tmp[0]), parseFloat(tmp[1])];
   }
-  
+
+  const drag = (e) => {
+      console.log(e.x - e.subject.x);
+      // console.log(e.y - e.subject.y);
+      // translate 추가
+      // TODO : duplicate code solve
+      const dragX = (e.subject.x - e.x) * 0.05;
+      const dragY = (e.subject.y - e.y) * 0.05;
+      let scale;
+      const trans = gMainView.attr("transform");
+      let tmp = trans.split("translate(")[1].split(",");
+
+      if (tmp[1].includes("scale")){
+          scale = parseFloat(tmp[1].split("scale(")[1]);
+      }
+      else scale = 1.0;
+      const [transX, transY] = getTransValue(gMainView.attr('transform'));
+      gMainView.attr('transform', `translate(${transX - dragX}, ${transY - dragY}) scale(${scale})`);
+      
+  }
+ 
     useEffect(() => {
 
         svgMainView = d3.select("#scatterplot" + props.dataset + props.method);
@@ -184,7 +204,9 @@ const Explorer = (props) => {
             }
         })
 
-        
+        svgMainView.call(
+            d3.drag()
+            .on("drag", drag));
 
 
         // const gBrush = d3.select("#minimap")
