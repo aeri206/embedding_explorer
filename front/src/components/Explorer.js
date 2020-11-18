@@ -28,7 +28,7 @@ const Explorer = (props) => {
     const width = 600;
     const height = 600;
     const margin = { hor: width / 20, ver: height / 20 };
-    const minimapRatio = 0.8;
+    const ratio = 0.05;
     const radius = 3;
 
     const [minX, maxX] = d3.extent(embeddedData, d => d.emb[0]);
@@ -62,20 +62,11 @@ const Explorer = (props) => {
 
   }
 
-  const makeView = (scale) => {
-  }
-
-
     useEffect(() => {
 
         svgMainView = d3.select("#scatterplot" + props.dataset + props.method);
 
-        svgMainView.append("rect")
-            .attr("width", width + margin.hor * 2)
-            .attr("height", height  + margin.ver * 2)
-            .style("fill-opacity", 0)
-            .style("stroke", "black")
-            .style("stroke-width", 2);
+        
 
         gMainView = svgMainView.attr("width", width + margin.hor * 2)
                     .attr("height", height + margin.ver * 2)
@@ -83,6 +74,13 @@ const Explorer = (props) => {
                     .attr("id", "scatterplot_g_" + props.dataset + props.method) // gCam이랑 동일.
                     .attr("transform", "translate(" + margin.hor + ", " + margin.ver + ")");
         
+
+        svgMainView.append("rect")
+            .attr("width", width + margin.hor * 2)
+            .attr("height", height  + margin.ver * 2)
+            .style("fill-opacity", 0)
+            .style("stroke", "black")
+            .style("stroke-width", 2);
 
         pointMainView = gMainView.append("g")
                     .attr("id", "circle_g_" + props.dataset + props.method); // stageChart 동일한 역할.
@@ -105,7 +103,6 @@ const Explorer = (props) => {
                              }
                          );
 
-        
         svgMiniMap = d3.select("#minimap")
                 .style("margin", "10px 0 0 10px");
 
@@ -153,48 +150,64 @@ const Explorer = (props) => {
                                     .attr("r", radius);
                             }
                         );
-
-        svgMainView.on("wheel", e => {
-            console.log(e.deltaX, e.deltaY, e.deltaMode);
-            let trans = gMainView.attr("transform");
-            if (!trans.includes("scale")){
-                gMainView.attr("transform","scale(1.00) " + trans);
-                trans = gMainView.attr("transform");
+        // d3.select('#minimap')
+                        
+        svgMainView.on('wheel', e => {
+            let trans, scale, transX, transY;
+            let originX,originY;
+            trans = pointMainView.attr('transform');
+            if (trans == null){
+                scale = 1.0;
+                transX = 0.0;
+                transY = 0.0;
             }
-            if (e.deltaY < 0){ // scale 줄임
-                
-                gMainView.attr("transform-origin", `${e.offsetX}px ${e.offsetY}px`);
-                
-                let zoom = parseFloat(trans.substr(6,4));
-                if (zoom > 1.0) {
-                    gMainView.attr("transform", `scale(${(zoom - 0.05).toFixed(2)}) ${trans.substr(11)}`)
-                }
-                
-            }
-            else { // scale ++;
-                
-                gMainView.attr("transform-origin", `${e.offsetX}px ${e.offsetY}px`);
-                let zoom = parseFloat(trans.substr(6,4));
-                if (zoom < 10.0) {
-                    gMainView.attr("transform", `scale(${(zoom + 0.05).toFixed(2)}) ${trans.substr(11)}`)
-                }
+            else { // parsing
+                scale = parseFloat(trans.substr(6,3)).toFixed(1);
+                let [tmpX, tmpY] = trans.split("(")[2].split(",")
+                transX = parseFloat(tmpX).toFixed(2);
+                transY = parseFloat(tmpY).toFixed(2);
+                // console.log(transX, transY);
 
             }
-            // gMainView.attr("transform", "scale(1.1)")
-            console.log(gMainView.attr('transform-origin'))
-        })
+            console.log(e);
+            originX = (e.offsetX - margin.hor - transX) / scale;
+            originY = (e.offsetY - margin.ver - transY) / scale;
+            
+            if (e.wheelDelta > 0){ // zoom-in    
+                transX = transX - parseFloat(0.1 * originX);
+                transY = transY - parseFloat(0.1 * originY);
+                // console.log(transX, transY)
+                let newScale = (parseFloat(scale) + 0.1).toFixed(1);
+                pointMainView.attr('transform', `scale(${newScale}) translate(${transX.toFixed(2)}, ${transY.toFixed(2)})`);
+                console.log(originX, originY);
+                (offsetX - margin.hor) / scale;
+                brush.move(gBrush, [
+                    [0,0],[width / 2, height / 2]]);
+
+            }
+            else { // zoom-out
+                transX = parseFloat(transX) + parseFloat(0.1 * originX);
+                transY = parseFloat(transY) + parseFloat(0.1 * originY);
+                console.log(transX, transY)
+                let newScale = (parseFloat(scale) - 0.1).toFixed(1);
+                pointMainView.attr('transform', `scale(${newScale}) translate(${transX.toFixed(2)}, ${transY.toFixed(2)})`);
 
 
-        // const gBrush = d3.select("#minimap")
-        // .append('g').attr('id', 'gBrush');
+            }
+            
+        }, true)
 
-        // gBrush.call(brush);
 
-        // brush.move(gBrush, [
-        //     [0,0],
+        const gBrush = d3.select("#minimap")
+        .append('g').attr('id', 'gBrush');
 
-        //     [width, height] // zooming scale 추가하면 될.듯!
-        // ]);
+        gBrush.call(brush);
+
+        brush.move(gBrush, [
+            [0,0],
+
+            [width, height] // zooming scale 추가하면 될.듯!
+        ]);
 
         // minimap에도 그리고
         // zoom
@@ -219,7 +232,7 @@ const Explorer = (props) => {
     return (
         <div>
             <svg id={"scatterplot" + props.dataset + props.method}></svg>
-            <svg id="minimap"></svg>
+            <svg id="minimap" ></svg>
         </div>
     );
 };
