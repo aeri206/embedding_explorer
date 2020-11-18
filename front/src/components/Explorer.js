@@ -38,32 +38,23 @@ const Explorer = (props) => {
         const xScale = d3.scaleLinear()
                          .domain([minX, maxX])
                          .range([0, width]);
-
-        const xMiniMapScale = d3.scaleLinear()
-                                .domain([minX, maxX])
-                                .range([0, width * ratio]);
-
         
         const yScale = d3.scaleLinear()
                          .domain([minY, maxY])
                          .range([0, height]);
 
-        const yMiniMapScale = d3.scaleLinear()
-                                .domain([minY, maxY])
-                                .range([0, height * ratio]);
-
 
     let colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 
-  const Brushing = e => {
-      
-    // if (selection){
-    //       console.log(selection);
-    //       let [[x0, y0], [x1, y1]] = selection;
-    //       const [minimapWidth, minimapHeight] = [x1-x0 - margin.hor, y1-y0 - margin.ver];
-    //       const scale = [minimapWidth / width, minimapHeight / height];
-    //       console.log(scale);
-    //   }
+  function Brushing({selection}) {
+    let scale = getScaleValue(gMainView.attr("transform"))
+
+    if (selection){
+          let [x0, y0] = selection[0];
+          let moveX = margin.hor * scale - x0 * scale / ratio;
+          let moveY = margin.ver * scale - y0 * scale / ratio;
+          gMainView.attr('transform', `translate(${moveX}, ${moveY}) scale(${scale})`);
+      }
   }
 
   const brush = d3.brush()
@@ -75,17 +66,21 @@ const Explorer = (props) => {
       return [parseFloat(tmp[0]), parseFloat(tmp[1])];
   }
 
+  const getScaleValue = trans => {
+    let tmp = trans.split("translate(")[1].split(",");
+
+    if (tmp[1].includes("scale")){
+        return(parseFloat(tmp[1].split("scale(")[1]));
+    }
+    else return (1.0);
+  }
+
   const drag = (e) => {
       const dragX = (e.subject.x - e.x) * 0.05;
       const dragY = (e.subject.y - e.y) * 0.05;
       let scale;
       const trans = gMainView.attr("transform");
-      let tmp = trans.split("translate(")[1].split(",");
-
-      if (tmp[1].includes("scale")){
-          scale = parseFloat(tmp[1].split("scale(")[1]);
-      }
-      else scale = 1.0;
+      scale = getScaleValue(trans);
       const [transX, transY] = getTransValue(gMainView.attr('transform'));
       const moveX = d3.max([d3.min([transX - dragX, margin.hor * scale]),(30 / scale) - (scale - 1.0) * width]);
       const moveY = d3.max([d3.min([transY - dragY, margin.ver * scale]),(30 / scale) - (scale - 1.0) * height]);
@@ -174,8 +169,8 @@ const Explorer = (props) => {
                                         if (props.isLabel) return colorScale(data[d.idx].label);
                                         else return "black"; 
                                     })
-                                    .attr("cx", d => xMiniMapScale(d.emb[0]))
-                                    .attr("cy", d => yMiniMapScale(d.emb[1]))
+                                    .attr("cx", d => xScale(d.emb[0]) * ratio)
+                                    .attr("cy", d => yScale(d.emb[1]) * ratio)
                                     .style("opacity", 0.8)
                                     .attr("r", radius);
                             }
@@ -186,12 +181,8 @@ const Explorer = (props) => {
             let scale, newScale, newTransX, newTransY;
             const {offsetX, offsetY, wheelDelta} = e;
             const trans = gMainView.attr("transform");
-            let tmp = trans.split("translate(")[1].split(",");
-
-            if (tmp[1].includes("scale")){
-                scale = parseFloat(tmp[1].split("scale(")[1]);
-            }
-            else scale = 1.0;
+            
+            scale = getScaleValue(trans);
             const [transX, transY] = getTransValue(gMainView.attr('transform'));
             if (wheelDelta > 0){ // ZOOM IN
                 if (scale < 5.0){
@@ -237,10 +228,6 @@ const Explorer = (props) => {
 
         svgMiniMap.selectAll('.handle').remove();
         svgMiniMap.selectAll('.overlay').remove();
-
-
-
-            
         
     }, [])
     return (
