@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import * as d3 from 'd3';
+import { precisionFixed } from 'd3';
 // import axios from 'axios';
 const Explorer = (props) => {
 
@@ -59,9 +60,13 @@ const Explorer = (props) => {
           const scale = [minimapWidth / width, minimapHeight / height];
           console.log(scale);
       }
-
   }
 
+  const getTransValue = trans => {
+      const tmp = trans.split("translate(")[1].split(",");
+      return [parseFloat(tmp[0]), parseFloat(tmp[1])];
+  }
+  
     useEffect(() => {
 
         svgMainView = d3.select("#scatterplot" + props.dataset + props.method);
@@ -150,85 +155,46 @@ const Explorer = (props) => {
                                     .attr("r", radius);
                             }
                         );
-        // d3.select('#minimap')
                         
+
         svgMainView.on('wheel', e => {
-            let trans, scale, transX, transY;
-            let originX,originY;
-            trans = pointMainView.attr('transform');
-            if (trans == null){
-                scale = 1.0;
-                transX = 0.0;
-                transY = 0.0;
+            let scale, newScale, newTransX, newTransY;
+            const {offsetX, offsetY, wheelDelta} = e;
+            const trans = gMainView.attr("transform");
+            let tmp = trans.split("translate(")[1].split(",");
+
+            if (tmp[1].includes("scale")){
+                scale = parseFloat(tmp[1].split("scale(")[1]);
             }
-            else { // parsing
-                scale = parseFloat(trans.substr(6,3)).toFixed(1);
-                let [tmpX, tmpY] = trans.split("(")[2].split(",")
-                transX = parseFloat(tmpX).toFixed(2);
-                transY = parseFloat(tmpY).toFixed(2);
-                // console.log(transX, transY);
-
+            else scale = 1.0;
+            const [transX, transY] = getTransValue(gMainView.attr('transform'));
+            if (wheelDelta > 0){
+                if (scale < 5.0){
+                    newScale = parseFloat(scale) + parseFloat(0.1);
+                    newTransX = transX - 0.1 * (offsetX - transX) / scale;
+                    newTransY = transY - 0.1 * (offsetY - transY) / scale;
+                    gMainView.attr('transform', `translate(${newTransX.toFixed(3)}, ${newTransY.toFixed(3)}) scale(${newScale.toFixed(1)})`);
+                }
             }
-            console.log(e);
-            originX = (e.offsetX - margin.hor - transX) / scale;
-            originY = (e.offsetY - margin.ver - transY) / scale;
-            
-            if (e.wheelDelta > 0){ // zoom-in    
-                transX = transX - parseFloat(0.1 * originX);
-                transY = transY - parseFloat(0.1 * originY);
-                // console.log(transX, transY)
-                let newScale = (parseFloat(scale) + 0.1).toFixed(1);
-                pointMainView.attr('transform', `scale(${newScale}) translate(${transX.toFixed(2)}, ${transY.toFixed(2)})`);
-                console.log(originX, originY);
-                (offsetX - margin.hor) / scale;
-                brush.move(gBrush, [
-                    [0,0],[width / 2, height / 2]]);
-
+            else if (scale > 1.0){
+                    newScale = parseFloat(scale) - parseFloat(0.1);
+                    newTransX = transX + 0.1 * (offsetX - transX) / scale;
+                    newTransY = transY + 0.1 * (offsetY - transY) / scale;
+                    gMainView.attr('transform', `translate(${newTransX.toFixed(3)}, ${newTransY.toFixed(3)}) scale(${newScale.toFixed(1)})`);
             }
-            else { // zoom-out
-                transX = parseFloat(transX) + parseFloat(0.1 * originX);
-                transY = parseFloat(transY) + parseFloat(0.1 * originY);
-                console.log(transX, transY)
-                let newScale = (parseFloat(scale) - 0.1).toFixed(1);
-                pointMainView.attr('transform', `scale(${newScale}) translate(${transX.toFixed(2)}, ${transY.toFixed(2)})`);
+        })
+
+        
 
 
-            }
-            
-        }, true)
+        // const gBrush = d3.select("#minimap")
+        // .append('g').attr('id', 'gBrush');
 
 
-        const gBrush = d3.select("#minimap")
-        .append('g').attr('id', 'gBrush');
-
-        gBrush.call(brush);
-
-        brush.move(gBrush, [
-            [0,0],
-
-            [width, height] // zooming scale 추가하면 될.듯!
-        ]);
-
-        // minimap에도 그리고
-        // zoom
-        //
 
             
         
     }, [])
-    // const loading = async () => {
-
-    //     axios
-    //         .get("/data/")
-    //         .then(data => {
-    //             console.log(data);
-    //         })
-    //         .catch(e => {
-    //             console.log(e);
-
-    //         });
-    // };
-
     return (
         <div>
             <svg id={"scatterplot" + props.dataset + props.method}></svg>
