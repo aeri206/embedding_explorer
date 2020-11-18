@@ -68,10 +68,6 @@ const Explorer = (props) => {
   }
 
   const drag = (e) => {
-      console.log(e.x - e.subject.x);
-      // console.log(e.y - e.subject.y);
-      // translate 추가
-      // TODO : duplicate code solve
       const dragX = (e.subject.x - e.x) * 0.05;
       const dragY = (e.subject.y - e.y) * 0.05;
       let scale;
@@ -83,15 +79,14 @@ const Explorer = (props) => {
       }
       else scale = 1.0;
       const [transX, transY] = getTransValue(gMainView.attr('transform'));
-      gMainView.attr('transform', `translate(${transX - dragX}, ${transY - dragY}) scale(${scale})`);
-      
+      const moveX = d3.max([d3.min([transX - dragX, margin.hor * scale]),(30 / scale) - (scale - 1.0) * width]);
+      const moveY = d3.max([d3.min([transY - dragY, margin.ver * scale]),(30 / scale) - (scale - 1.0) * height]);
+      gMainView.attr('transform', `translate(${moveX}, ${moveY}) scale(${scale})`);
   }
  
     useEffect(() => {
 
         svgMainView = d3.select("#scatterplot" + props.dataset + props.method);
-
-        
 
         gMainView = svgMainView.attr("width", width + margin.hor * 2)
                     .attr("height", height + margin.ver * 2)
