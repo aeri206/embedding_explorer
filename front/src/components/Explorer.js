@@ -183,7 +183,7 @@ const Explorer = (props) => {
             }
             else scale = 1.0;
             const [transX, transY] = getTransValue(gMainView.attr('transform'));
-            if (wheelDelta > 0){
+            if (wheelDelta > 0){ // ZOOM IN
                 if (scale < 5.0){
                     newScale = parseFloat(scale) + parseFloat(0.1);
                     newTransX = transX - 0.1 * (offsetX - transX) / scale;
@@ -191,11 +191,13 @@ const Explorer = (props) => {
                     gMainView.attr('transform', `translate(${newTransX.toFixed(3)}, ${newTransY.toFixed(3)}) scale(${newScale.toFixed(1)})`);
                 }
             }
-            else if (scale > 1.0){
+            else if (scale > 1.0){ // ZOOM OUT
                     newScale = parseFloat(scale) - parseFloat(0.1);
                     newTransX = transX + 0.1 * (offsetX - transX) / scale;
                     newTransY = transY + 0.1 * (offsetY - transY) / scale;
-                    gMainView.attr('transform', `translate(${newTransX.toFixed(3)}, ${newTransY.toFixed(3)}) scale(${newScale.toFixed(1)})`);
+                    const moveX = d3.max([d3.min([newTransX, margin.hor * newScale]),(30 / newScale) - (newScale - 1.0) * width]);
+                    const moveY = d3.max([d3.min([newTransY, margin.ver * newScale]),(30 / newScale) - (newScale - 1.0) * height]);
+                    gMainView.attr('transform', `translate(${moveX.toFixed(3)}, ${moveY.toFixed(3)}) scale(${newScale.toFixed(1)})`);
             }
         })
 
