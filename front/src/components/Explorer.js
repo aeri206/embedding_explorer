@@ -25,11 +25,11 @@ const Explorer = (props) => {
 
     let svg, svgPoints, svgEdges;
     let svgMainView, gMainView, pointMainView;
-    let svgMiniMap, gMiniMap, pointMiniMap;
+    let svgMiniMap, gMiniMap, pointMiniMap, gBrush;
     const width = 600;
     const height = 600;
     const margin = { hor: width / 20, ver: height / 20 };
-    const ratio = 0.05;
+    const ratio = 0.8;
     const radius = 3;
 
     const [minX, maxX] = d3.extent(embeddedData, d => d.emb[0]);
@@ -38,29 +38,37 @@ const Explorer = (props) => {
         const xScale = d3.scaleLinear()
                          .domain([minX, maxX])
                          .range([0, width]);
+
+        const xMiniMapScale = d3.scaleLinear()
+                                .domain([minX, maxX])
+                                .range([0, width * ratio]);
+
         
         const yScale = d3.scaleLinear()
                          .domain([minY, maxY])
                          .range([0, height]);
 
+        const yMiniMapScale = d3.scaleLinear()
+                                .domain([minY, maxY])
+                                .range([0, height * ratio]);
+
 
     let colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 
-    const brush = d3.brush()
-                      .extent([[0,0], [width,height]])
-                      .on('brush', Brushing);
-
-
-  function Brushing({selection}){
+  const Brushing = e => {
       
-    if (selection){
-          console.log(selection);
-          let [[x0, y0], [x1, y1]] = selection;
-          const [minimapWidth, minimapHeight] = [x1-x0 - margin.hor, y1-y0 - margin.ver];
-          const scale = [minimapWidth / width, minimapHeight / height];
-          console.log(scale);
-      }
+    // if (selection){
+    //       console.log(selection);
+    //       let [[x0, y0], [x1, y1]] = selection;
+    //       const [minimapWidth, minimapHeight] = [x1-x0 - margin.hor, y1-y0 - margin.ver];
+    //       const scale = [minimapWidth / width, minimapHeight / height];
+    //       console.log(scale);
+    //   }
   }
+
+  const brush = d3.brush()
+                      .extent([[0,0], [ratio * (width + 2 * margin.hor) ,ratio * (height + 2 * margin.ver)]])
+                      .on('brush', Brushing);
 
   const getTransValue = trans => {
       const tmp = trans.split("translate(")[1].split(",");
@@ -82,6 +90,12 @@ const Explorer = (props) => {
       const moveX = d3.max([d3.min([transX - dragX, margin.hor * scale]),(30 / scale) - (scale - 1.0) * width]);
       const moveY = d3.max([d3.min([transY - dragY, margin.ver * scale]),(30 / scale) - (scale - 1.0) * height]);
       gMainView.attr('transform', `translate(${moveX}, ${moveY}) scale(${scale})`);
+    // TODO : brush
+    brush.move(gBrush, [
+        [(margin.hor * scale - moveX) * ratio / scale, (margin.ver * scale - moveY) * ratio / scale],
+        [(margin.hor * scale - moveX) * ratio / scale + (width + 2 * margin.hor) * ratio / scale,
+        (margin.ver * scale - moveY) * ratio / scale + (height + 2 * margin.ver) * ratio / scale],
+    ])
   }
  
     useEffect(() => {
@@ -124,26 +138,21 @@ const Explorer = (props) => {
                          );
 
         svgMiniMap = d3.select("#minimap")
-                .style("margin", "10px 0 0 10px");
+                .style("padding", "10px 0 0 10px");
 
                
            
         svgMiniMap.append("rect")
-            .attr("width", width)
-            .attr("height", height)
-            .style("fill-opacity",0)
+            .attr("width", (width + margin.hor * 2) * ratio)
+            .attr("height", (height + margin.ver * 2) * ratio)
+            .style('fill', 'lightgrey')
+            .style('fill-opacity', 0.5)
             .style("stroke", "black")
             .style("stroke-width", 2);
+    
 
-        svgMiniMap
-            .append('rect')
-            .attr("width", width)
-            .attr("height", height)
-            .style('fill', 'lightgrey')
-            .style('fill-opacity', 0.5);
-
-        gMiniMap = svgMiniMap.attr("width", width)
-            .attr("height", height)
+        gMiniMap = svgMiniMap.attr("width", (width + margin.hor * 2) * ratio)
+            .attr("height", (height + margin.ver * 2) * ratio)
             .append("g")
             .attr("id", "minimap_g_" +  props.dataset + props.method)
             // .attr("transform", "translate(" + margin.hor + ", " + margin.ver + ")");
@@ -151,7 +160,8 @@ const Explorer = (props) => {
 
         pointMiniMap = gMiniMap
                              .append("g")
-                             .attr("id", "minimap_circle_g_"+ props.dataset + props.method);
+                             .attr("id", "minimap_circle_g_"+ props.dataset + props.method)
+                             .attr("transform", "translate(" + ratio * margin.hor + ", " + ratio * margin.ver + ")");
 
 
         pointMiniMap.selectAll("circle")
@@ -164,8 +174,8 @@ const Explorer = (props) => {
                                         if (props.isLabel) return colorScale(data[d.idx].label);
                                         else return "black"; 
                                     })
-                                    .attr("cx", d => xScale(d.emb[0]))
-                                    .attr("cy", d => yScale(d.emb[1]))
+                                    .attr("cx", d => xMiniMapScale(d.emb[0]))
+                                    .attr("cy", d => yMiniMapScale(d.emb[1]))
                                     .style("opacity", 0.8)
                                     .attr("r", radius);
                             }
@@ -189,6 +199,12 @@ const Explorer = (props) => {
                     newTransX = transX - 0.1 * (offsetX - transX) / scale;
                     newTransY = transY - 0.1 * (offsetY - transY) / scale;
                     gMainView.attr('transform', `translate(${newTransX.toFixed(3)}, ${newTransY.toFixed(3)}) scale(${newScale.toFixed(1)})`);
+                    
+                    brush.move(gBrush, [
+                        [(margin.hor * newScale - newTransX) * ratio / newScale, (margin.ver * newScale - newTransY) * ratio / newScale],
+                        [(margin.hor * newScale - newTransX) * ratio / newScale + (width + 2 * margin.hor) * ratio / newScale,
+                         (margin.ver * newScale - newTransY) * ratio / newScale + (height + 2 * margin.ver) * ratio / newScale],
+                    ]);
                 }
             }
             else if (scale > 1.0){ // ZOOM OUT
@@ -198,6 +214,12 @@ const Explorer = (props) => {
                     const moveX = d3.max([d3.min([newTransX, margin.hor * newScale]),(30 / newScale) - (newScale - 1.0) * width]);
                     const moveY = d3.max([d3.min([newTransY, margin.ver * newScale]),(30 / newScale) - (newScale - 1.0) * height]);
                     gMainView.attr('transform', `translate(${moveX.toFixed(3)}, ${moveY.toFixed(3)}) scale(${newScale.toFixed(1)})`);
+
+                    brush.move(gBrush, [
+                        [(margin.hor * newScale - moveX) * ratio / newScale, (margin.ver * newScale - moveY) * ratio / newScale],
+                        [(margin.hor * newScale - moveX) * ratio / newScale + (width + 2 * margin.hor) * ratio / newScale,
+                         (margin.ver * newScale - moveY) * ratio / newScale + (height + 2 * margin.ver) * ratio / newScale],
+                    ]);
             }
         })
 
@@ -206,8 +228,15 @@ const Explorer = (props) => {
             .on("drag", drag));
 
 
-        // const gBrush = d3.select("#minimap")
-        // .append('g').attr('id', 'gBrush');
+        gBrush = svgMiniMap.append('g').attr('id', 'gBrush');
+        gBrush.call(brush);
+        brush.move(gBrush, [
+            [0,0],
+            [(width + 2 * margin.hor) * ratio, (height + 2 * margin.ver) * ratio]
+        ]);
+
+        svgMiniMap.selectAll('.handle').remove();
+        svgMiniMap.selectAll('.overlay').remove();
 
 
 
