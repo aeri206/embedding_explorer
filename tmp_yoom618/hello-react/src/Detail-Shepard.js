@@ -32,7 +32,7 @@ class ShepardDiagram extends Component {
     let shepard_data = new Array(N).fill(0).map(() => new Array(N).fill(0));
     let dist_orig = []; let dist_emb = [];
     for (let i=0; i < data_orig.length; i++){
-      for (let j=0; j < data_orig.length; j++){
+      for (let j=i+1; j < data_orig.length; j++){
         dist_orig.push(this.eucDistance(data_orig[i], data_orig[j]));
         dist_emb.push(this.eucDistance(data_emb[i], data_emb[j]));
       }
@@ -76,8 +76,8 @@ class ShepardDiagram extends Component {
           yLabels={this.state.yLabels}
           xLabelsLocation={"bottom"} xLabelsVisibility={this.xLabelsVisibility}
           xLabelWidth={0} yLabelWidth={0}
-          // data={this.state.shepard_data}
-          data={this.shepardMatrix(this.state.data_orig, this.state.data_emb)}
+          data={this.state.shepard_data}
+          // data={this.shepardMatrix(this.state.data_orig, this.state.data_emb)}
           onClick={this.onClick}
           squares={true}
           height={plotHeight/N}
