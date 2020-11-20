@@ -45,7 +45,7 @@ class ShepardDiagram extends Component {
       n = (N-1) - Math.ceil((dist_emb[i]-ymin)/ydel*(N-1));
       shepard_data[m][n] += 1;
     }
-    console.log(shepard_data)
+    // console.log(shepard_data)
 
 
     return shepard_data;
