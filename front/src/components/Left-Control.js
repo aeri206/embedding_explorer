@@ -29,23 +29,22 @@ const ControlTab = (props) => {
 
   return (
     <div id="control" className='Tab'>
-        <div id="title">
+        <div className="tab-title">
         Control
         </div>
-      <div id="header"><b>DATASET</b></div>
+      <div className="keyword"><b>DATASET</b></div>
       <div id="fileIO">
         <button>Load Original Data</button>
         {spacing(4)}
         <button>Load Label Data</button>
       </div>
-      <div id="body" style={{fontSize:'13px'}}>
+      <div className="data" style={{fontSize:'13px'}}>
         original-data{spacing(2)}:{spacing(2)}{df_filename}<br/>
         label-data{spacing(2)}:{spacing(2)}{label_filename}
 
       </div>
-
-      <div id="header"><b>EMBEDDING</b></div>
-      <div id="body">asdf</div>
+      <div className="keyword"><b>EMBEDDING</b></div>
+      <div className="data">asdf</div>
     </div>
   );
 

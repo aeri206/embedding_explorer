@@ -12,19 +12,23 @@ function App() {
       <header className="App-header">
         Distortion in Dimension Reduction
       </header>
-      <div id="left-bar">
-          <BasicInfoTab/>
-          <ControlTab/>
+      <div id="body">
+        <div id="left-bar">
+            <BasicInfoTab/>
+            <ControlTab/>
+        </div>
+        <div id="content">
+          <Explorer
+            method="pca"
+            dataset="mnist_sampled_10"
+            isLabel={true}
+          />
+        </div>
+        <div id="detail-info">
+          <div style={{textAlign:'center', height:'25px', fontSize:'16px'}}>Shepard Diagram</div>
+          <ShepardDiagram/>
+        </div>
       </div>
-      <div id="detail-info">
-        <div style={{textAlign:'center', height:'25px', fontSize:'16px'}}>Shepard Diagram</div>
-        <ShepardDiagram/>
-      </div>
-      <Explorer
-        method="pca"
-        dataset="mnist_sampled_10"
-        isLabel={true}
-      />
       <footer/>
     </div>
   );

@@ -27,13 +27,13 @@ const BasicInfoTab = (props) => {
 
   return (
     <div id="basic-info" className='Tab'>
-       <div id="title">
+       <div className="tab-title">
        Basic Information
        </div>
-      <div id="header"><b>DATASET</b>{spacing(5)}{df_name}</div>
-      <div id="body">label{spacing(2)}:{spacing(2)}{n_label}</div>
-      <div id="header"><b>EMBEDDING</b>{spacing(5)}{emb_name}</div>
-      <div id="body">{printParam(emb_params)}</div>
+      <div className="keyword"><b>DATASET</b>{spacing(5)}{df_name}</div>
+      <div className="data">label{spacing(2)}:{spacing(2)}{n_label}</div>
+      <div className="keyword"><b>EMBEDDING</b>{spacing(5)}{emb_name}</div>
+      <div className="data">{printParam(emb_params)}</div>
     </div>
   );
 
