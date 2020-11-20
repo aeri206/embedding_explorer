@@ -1,14 +1,14 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import parse from 'html-react-parser';
 
-class BasicInfoTab extends Component {
-  state = {
-    df_name: 'MNIST-TEST',
-    n_label: 'not-applied',
-    emb_name: 'PCA',
-    emb_params: {'param1': 111, 'param2': 222, 'param3': 222, 'param4': 222, 'param5': 222}
-  }
-  printParam = (obj) => {
+const BasicInfoTab = (props) => {
+
+  const df_name = useState('MNIST-TEST')[0];
+  const n_label = useState('not-applied')[0];
+  const emb_name = useState('PCA')[0];
+  const emb_params = useState({'param1': 111, 'param2': 222, 'param3': 222, 'param4': 222, 'param5': 222})[0];
+
+  const printParam = (obj) => {
     let txt = '';
     for (let x in obj){
       txt+= x + "&nbsp;&nbsp;:&nbsp;&nbsp;" + obj[x] + '<br/>';
@@ -16,7 +16,8 @@ class BasicInfoTab extends Component {
     txt += ""
     return parse(txt);
   }
-  spacing = (num) => {
+
+  const spacing = (num) => {
     let txt = '';
     for (let x = 0; x < num; x++){
       txt+= "&nbsp;"
@@ -24,18 +25,19 @@ class BasicInfoTab extends Component {
     return parse(txt);
   }
 
-  render() {
-    return (
-      <div id="basic-info" className='Tab'>
-         <div id="title">
-         Basic Information
-         </div>
-        <div id="header"><b>DATASET</b>{this.spacing(5)}{this.state.df_name}</div>
-        <div id="body">label{this.spacing(2)}:{this.spacing(2)}{this.state.n_label}</div>
-        <div id="header"><b>EMBEDDING</b>{this.spacing(5)}{this.state.emb_name}</div>
-        <div id="body">{this.printParam(this.state.emb_params)}</div>
-      </div>
-    );
-  }
+  return (
+    <div id="basic-info" className='Tab'>
+       <div id="title">
+       Basic Information
+       </div>
+      <div id="header"><b>DATASET</b>{spacing(5)}{df_name}</div>
+      <div id="body">label{spacing(2)}:{spacing(2)}{n_label}</div>
+      <div id="header"><b>EMBEDDING</b>{spacing(5)}{emb_name}</div>
+      <div id="body">{printParam(emb_params)}</div>
+    </div>
+  );
+
+
 }
+
 export default BasicInfoTab;
