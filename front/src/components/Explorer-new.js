@@ -45,7 +45,7 @@ const ExplorerNew = (props) => {
                         .domain([minY, maxY])
                         .range([0, height]);
 
-    const ratio = 0.8;
+    const ratio = 0.4;
 
 
     let svgs, svg, svgPoints, svgEdges, svgMissingEdges, svgContour, svgContourPoints;
@@ -178,6 +178,8 @@ const ExplorerNew = (props) => {
     useEffect(() => {
 
         drawPlot(1.0, "scatterplot");
+        svgContour = d3.select(`#scatterplot_contour_g_${props.dataset}_${props.method}`);
+        svgContourPoints = d3.select(`#scatterplot_contour_point_g_${props.dataset}_${props.method}`);
 
         function renderMissingEdges(edges, missingPointsDict) {
             console.log('renderMissingEdges')
@@ -208,121 +210,112 @@ const ExplorerNew = (props) => {
                         .style("fill-opacity", 0)
                         .style("stroke", "black")
                         .style("stroke-width", 2)
-
-/*
-        pointSelection = svg.append("rect")
-                            .attr("width", width + margin.hor * 2)
-                            .attr("height", height  + margin.ver * 2)
-                            .attr("transform", "translate(-" + margin.hor + ", -" + margin.ver + ")")
-                            .style("fill-opacity", 0)
-                            .style("stroke", "black")
-                            .style("stroke-width", 2)
-                            .on("click", function(event) {
-                                console.log('click')
-                              if(!isSelecting.current) {
-                                    
-                                  if(!isMakingContour.current) {
-                                      isMakingContour.current = true;
-                                      contour.current.push([event.offsetX, event.offsetY])
-                                      svgContour.append("path")
-                                                .attr("id", "current_path")
-                                                .attr("fill", "none")
-                                                .attr("stroke", "blue")
-                                                .attr("storke-width", 1)
-                                                .attr("stroke-dasharray", "2 ");
-                                  }
-                                  else {
-                                      svgContour.select("#current_path")
-                                                .attr("id", "")
-                                                .attr("d", () => {
-                                                    let start, end;
-                                                    if (Math.abs(event.offsetX - contour.current[0][0]) < 4 &&
-                                                        Math.abs(event.offsetY - contour.current[0][1]) < 4) {
-                                                            start = contour.current[contour.current.length - 1];
-                                                            end = contour.current[0];
-                                                            isSelecting.current = true;
-                                                            isMakingContour.current = false; // finish making contour
-                                                        }
-                                                    else {
-                                                        contour.current.push([event.offsetX, event.offsetY])
-                                                        start = contour.current[contour.current.length - 2];
-                                                        end = contour.current[contour.current.length - 1];
-                                                        svgContour.append("path")
-                                                                  .attr("id", "current_path")
-                                                                  .attr("fill", "none")
-                                                                  .attr("stroke", "blue")
-                                                                  .attr("storke-width", 1)
-                                                                  .attr("stroke-dasharray", "2 ");
-                                                    }
-                                                    
-                                                    return d3.line()
-                                                             .x(datum => datum[0])
-                                                             .y(datum => datum[1])
-                                                             ([[start[0] - margin.hor, start[1] - margin.ver],[end[0] - margin.hor, end[1] - margin.ver]])
-                                                })
-                                      
-
-                                      if(isSelecting.current) {
-                                          let points = pointsInPolygon(contour.current);
-                                          svgContourPoints.selectAll("circle")
-                                                    .data(points)
-                                                    .enter()
-                                                    .append("circle")
-                                                    .attr("r", radius * 3)
-                                                    .attr("cx", d => xScale(pointsData[d].coor[0]))
-                                                    .attr("cy", d => yScale(pointsData[d].coor[1]))
-                                                    .attr("fill", "blue");
-                                        
-                                          let missingPointsDict = points.reduce(function(acc, val) {
-                                              let currentDict = missingPointsData[val];
-                                              Object.keys(currentDict).forEach(key => {
-                                                  if (key in acc) acc[key] += currentDict[key];
-                                                  else            acc[key] =  currentDict[key];
-                                              });
-                                              return acc;
-                                          }, {})
-
-                                          let listLen = points.length;
-                                          Object.keys(missingPointsDict).forEach(d => {
-                                              missingPointsDict[d] /= listLen;
-                                          })
-                                          let edges = getMissingEdgesInfo(missingPointsDict);
-                                          renderMissingEdges(edges, missingPointsDict);
-                                      }
-                                      
-                                  }
-                                  if(isMakingContour.current){
-                                      svgContour.append("circle")
-                                                .attr("r", 1.5)
-                                                .attr("cx", event.offsetX - margin.hor)
-                                                .attr("cy", event.offsetY - margin.ver)
-                                                .attr("fill", "none")
-                                                .attr("stroke", "blue")
-                                                .attr("stroke-width", 1);
-                                  }
-                              }
-                            })
-                            .on("mousemove", function(event) {
-                                console.log('mouseMove')
-                                svgContour.select("#current_path")
-                                          .attr("d",() =>{
-                                              let start = contour.current[contour.current.length - 1]
-                                              let end;
-                                              if (Math.abs(event.offsetX - contour.current[0][0]) < 4 &&
-                                                  Math.abs(event.offsetY - contour.current[0][1]) < 4) 
-                                                  end = contour.current[0];
-                                              else end = [event.offsetX, event.offsetY]
-                                              return d3.line()
-                                                       .x(datum => datum[0])
-                                                       .y(datum => datum[1])
-                                                       ([[start[0] - margin.hor, start[1] - margin.ver],[end[0] - margin.hor, end[1] - margin.ver]])
-
-                                          })
+                        .on("click", function(event) {
+                            console.log('click')
+                            if(!isSelecting.current) {
                                 
-                            })
+                                if(!isMakingContour.current) {
+                                    isMakingContour.current = true;
+                                    contour.current.push([event.offsetX, event.offsetY])
+                                    svgContour.append("path")
+                                            .attr("id", "current_path")
+                                            .attr("fill", "none")
+                                            .attr("stroke", "blue")
+                                            .attr("storke-width", 1)
+                                            .attr("stroke-dasharray", "2 ");
+                                }
+                                else {
+                                    svgContour.select("#current_path")
+                                            .attr("id", "")
+                                            .attr("d", () => {
+                                                let start, end;
+                                                if (Math.abs(event.offsetX - contour.current[0][0]) < 4 &&
+                                                    Math.abs(event.offsetY - contour.current[0][1]) < 4) {
+                                                        start = contour.current[contour.current.length - 1];
+                                                        end = contour.current[0];
+                                                        isSelecting.current = true;
+                                                        isMakingContour.current = false; // finish making contour
+                                                    }
+                                                else {
+                                                    contour.current.push([event.offsetX, event.offsetY])
+                                                    start = contour.current[contour.current.length - 2];
+                                                    end = contour.current[contour.current.length - 1];
+                                                    svgContour.append("path")
+                                                                .attr("id", "current_path")
+                                                                .attr("fill", "none")
+                                                                .attr("stroke", "blue")
+                                                                .attr("storke-width", 1)
+                                                                .attr("stroke-dasharray", "2 ");
+                                                }
+                                                
+                                                return d3.line()
+                                                            .x(datum => datum[0])
+                                                            .y(datum => datum[1])
+                                                            ([[start[0] - margin.hor, start[1] - margin.ver],[end[0] - margin.hor, end[1] - margin.ver]])
+                                            })
+                                    
+
+                                    if(isSelecting.current) {
+                                        let points = pointsInPolygon(contour.current);
+                                        svgContourPoints.selectAll("circle")
+                                                .data(points)
+                                                .enter()
+                                                .append("circle")
+                                                .attr("r", radius * 3)
+                                                .attr("cx", d => xScale(pointsData[d].coor[0]))
+                                                .attr("cy", d => yScale(pointsData[d].coor[1]))
+                                                .attr("fill", "blue");
+                                    
+                                        let missingPointsDict = points.reduce(function(acc, val) {
+                                            let currentDict = missingPointsData[val];
+                                            Object.keys(currentDict).forEach(key => {
+                                                if (key in acc) acc[key] += currentDict[key];
+                                                else            acc[key] =  currentDict[key];
+                                            });
+                                            return acc;
+                                        }, {})
+
+                                        let listLen = points.length;
+                                        Object.keys(missingPointsDict).forEach(d => {
+                                            missingPointsDict[d] /= listLen;
+                                        })
+                                        let edges = getMissingEdgesInfo(missingPointsDict);
+                                        renderMissingEdges(edges, missingPointsDict);
+                                    }
+                                    
+                                }
+                                if(isMakingContour.current){
+                                    svgContour.append("circle")
+                                            .attr("r", 1.5)
+                                            .attr("cx", event.offsetX - margin.hor)
+                                            .attr("cy", event.offsetY - margin.ver)
+                                            .attr("fill", "none")
+                                            .attr("stroke", "blue")
+                                            .attr("stroke-width", 1);
+                                }
+                            }
+                        })
+                        .on("mousemove", function(event) {
+                            console.log('mouseMove')
+                            svgContour.select("#current_path")
+                                        .attr("d",() =>{
+                                            let start = contour.current[contour.current.length - 1]
+                                            let end;
+                                            if (Math.abs(event.offsetX - contour.current[0][0]) < 4 &&
+                                                Math.abs(event.offsetY - contour.current[0][1]) < 4) 
+                                                end = contour.current[0];
+                                            else end = [event.offsetX, event.offsetY]
+                                            return d3.line()
+                                                    .x(datum => datum[0])
+                                                    .y(datum => datum[1])
+                                                    ([[start[0] - margin.hor, start[1] - margin.ver],[end[0] - margin.hor, end[1] - margin.ver]])
+
+                                        })
+                            
+                        })
  
         
-*/
+
 
         d3.select(`#scatterplot_circle_g_${props.dataset}_${props.method}`).selectAll("circle")
                             .data(pointsData)
