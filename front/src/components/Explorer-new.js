@@ -5,7 +5,6 @@ import inside from 'point-in-polygon'
 
 const ExplorerNew = (props) => {
 
-
     let jsonFileName = props.dataset + "_" + props.method;
     let pointsData = require("../json/" + jsonFileName + "_points.json");
     let edgesData = require("../json/" + jsonFileName + "_edges.json");
@@ -48,9 +47,9 @@ const ExplorerNew = (props) => {
     const ratio = 0.4;
 
 
-    let svgs, svg, svgPoints, svgEdges, svgMissingEdges, svgContour, svgContourPoints;
+    let svgContour, svgContourPoints;
+    let svgMainView, gMainView, svgMiniMap, gBrush;
 
-    let  svgMissingEdges_minimap, svgContour_minimap, svgContourPoints_minimap;
     let pointSelection;
 
     const radius = props.radius;
@@ -62,12 +61,15 @@ const ExplorerNew = (props) => {
 
     const isSelecting = useRef(false);
     const isMakingContour = useRef(false);
-    const contour = useRef([]);
+    let contour = useRef([]);
 
 
     function pointsInPolygon(polygon) {
-        console.log('points in Polygon')
-        polygon = polygon.map(d => [xScale.invert(d[0] - margin.hor), yScale.invert(d[1] - margin.ver)]);
+
+        
+        let scale = getTransformValue()[0];
+
+        polygon = polygon.map(d => [xScale.invert(d[0] - margin.hor / scale), yScale.invert(d[1] - margin.ver / scale)]);
         let pointsInPolygon = pointsData.reduce(function(acc, val, i){
             if (inside(val.coor, polygon)) acc.push(i);
             return acc;
@@ -76,7 +78,6 @@ const ExplorerNew = (props) => {
     }
 
     function getMissingEdgesInfo(missingPointsDict) {
-        console.log('getMissingEdgesInfo');
         let missingPointsList = Object.keys(missingPointsDict);
         let edges = missingPointsList.reduce(function(acc, val) {
             let adjacentPoints = knnData[val.toString()]
@@ -104,9 +105,17 @@ const ExplorerNew = (props) => {
         .attr("width", ratio * (width + margin.hor * 2))
         .attr("height", ratio * (height + margin.ver * 2));
 
+
+        svgs.append("rect")
+            .attr("width", ratio * (width + margin.hor * 2))
+            .attr("height", ratio * (height  + margin.ver * 2))
+            .style("fill-opacity", 0)
+            .style("stroke", "black")
+            .style("stroke-width", 2)
+
         let svg = svgs.append("g")
-                    .attr("id", `${prefix}_g_${props.dataset}_${props.method}`)
-                    .attr("transform", `translate(${ratio * margin.hor}, ${ratio * margin.ver})`);
+            .attr("id", `${prefix}_g_${props.dataset}_${props.method}`)
+            .attr("transform", `translate(${ratio * margin.hor}, ${ratio * margin.ver})`);
 
         let svgEdges = svg.append("g")
                         .attr("id", `${prefix}_edge_g_${props.dataset}_${props.method}`);
@@ -144,7 +153,6 @@ const ExplorerNew = (props) => {
         
                          // edges
         function scaleBivariate(first, second) {
-                        console.log('scalebivariate');
                         let lScale = d3.scaleLinear().domain([0, 2]).range([100, 30])
                         let aScale = d3.scaleLinear().domain([1, -1]).range([30, -30])
                         let bScale = d3.scaleLinear().domain([1, -1]).range([20, -20])
@@ -174,15 +182,62 @@ const ExplorerNew = (props) => {
 
 
     }
+    const getTransformValue = () => {
+        const trans = gMainView.attr('transform');
+        const tmp = trans.split("translate(")[1].split(",");
+
+        if (tmp[1].includes("scale")){
+            return [parseFloat(tmp[1].split("scale(")[1]),
+                    parseFloat(tmp[0]),
+                    parseFloat(tmp[1])];
+        }
+        else return [1.0,parseFloat(tmp[0]),parseFloat(tmp[1])];
+
+    }
+
+    function Brushing({selection}) {
+        let scale = getTransformValue()[0];
+        
+        if (selection){
+              let [x0, y0] = selection[0];
+              let moveX = margin.hor * scale - x0 * scale / ratio;
+              let moveY = margin.ver * scale - y0 * scale / ratio;
+              gMainView.attr('transform', `translate(${moveX}, ${moveY}) scale(${scale})`);
+          }
+      }
+
+    const brush = d3.brush()
+                      .extent([[0,0], [ratio * (width + 2 * margin.hor) ,ratio * (height + 2 * margin.ver)]])
+                      .on('brush', Brushing);
+
+    const drag = (e) => { // 매우느림
+
+        const dragX = (e.subject.x - e.x) * 0.05;
+      const dragY = (e.subject.y - e.y) * 0.05;
+      const [scale, transX, transY] = getTransformValue();
+      const moveX = d3.max([d3.min([transX - dragX, margin.hor * scale]),(30 / scale) - (scale - 1.0) * width]);
+      const moveY = d3.max([d3.min([transY - dragY, margin.ver * scale]),(30 / scale) - (scale - 1.0) * height]);
+      gMainView.attr('transform', `translate(${moveX}, ${moveY}) scale(${scale})`);
+    
+    brush.move(gBrush, [
+        [(margin.hor * scale - moveX) * ratio / scale, (margin.ver * scale - moveY) * ratio / scale],
+        [(margin.hor * scale - moveX) * ratio / scale + (width + 2 * margin.hor) * ratio / scale,
+        (margin.ver * scale - moveY) * ratio / scale + (height + 2 * margin.ver) * ratio / scale],
+    ])
+
+    }
+
+    
 
     useEffect(() => {
+        
+        console.log('useEffect1')
 
         drawPlot(1.0, "scatterplot");
         svgContour = d3.select(`#scatterplot_contour_g_${props.dataset}_${props.method}`);
         svgContourPoints = d3.select(`#scatterplot_contour_point_g_${props.dataset}_${props.method}`);
 
         function renderMissingEdges(edges, missingPointsDict) {
-            console.log('renderMissingEdges')
             d3.select(`#scatterplot_missing_edge_g_${props.dataset}_${props.method}`)
                     .selectAll("path")
                           .data(edges)
@@ -202,61 +257,8 @@ const ExplorerNew = (props) => {
                           });
         }
 
-        pointSelection = d3.select(`#scatterplot_g_${props.dataset}_${props.method}`)
-                        .append("rect")
-                        .attr("width", width + margin.hor * 2)
-                        .attr("height", height  + margin.ver * 2)
-                        .attr("transform", "translate(-" + margin.hor + ", -" + margin.ver + ")")
-                        .style("fill-opacity", 0)
-                        .style("stroke", "black")
-                        .style("stroke-width", 2)
-                        .on("click", function(event) {
-                            console.log('click')
-                            if(!isSelecting.current) {
-                                
-                                if(!isMakingContour.current) {
-                                    isMakingContour.current = true;
-                                    contour.current.push([event.offsetX, event.offsetY])
-                                    svgContour.append("path")
-                                            .attr("id", "current_path")
-                                            .attr("fill", "none")
-                                            .attr("stroke", "blue")
-                                            .attr("storke-width", 1)
-                                            .attr("stroke-dasharray", "2 ");
-                                }
-                                else {
-                                    svgContour.select("#current_path")
-                                            .attr("id", "")
-                                            .attr("d", () => {
-                                                let start, end;
-                                                if (Math.abs(event.offsetX - contour.current[0][0]) < 4 &&
-                                                    Math.abs(event.offsetY - contour.current[0][1]) < 4) {
-                                                        start = contour.current[contour.current.length - 1];
-                                                        end = contour.current[0];
-                                                        isSelecting.current = true;
-                                                        isMakingContour.current = false; // finish making contour
-                                                    }
-                                                else {
-                                                    contour.current.push([event.offsetX, event.offsetY])
-                                                    start = contour.current[contour.current.length - 2];
-                                                    end = contour.current[contour.current.length - 1];
-                                                    svgContour.append("path")
-                                                                .attr("id", "current_path")
-                                                                .attr("fill", "none")
-                                                                .attr("stroke", "blue")
-                                                                .attr("storke-width", 1)
-                                                                .attr("stroke-dasharray", "2 ");
-                                                }
-                                                
-                                                return d3.line()
-                                                            .x(datum => datum[0])
-                                                            .y(datum => datum[1])
-                                                            ([[start[0] - margin.hor, start[1] - margin.ver],[end[0] - margin.hor, end[1] - margin.ver]])
-                                            })
-                                    
-
-                                    if(isSelecting.current) {
-                                        let points = pointsInPolygon(contour.current);
+        const finalPointSelection = () => {
+            let points = pointsInPolygon(contour.current);
                                         svgContourPoints.selectAll("circle")
                                                 .data(points)
                                                 .enter()
@@ -281,57 +283,185 @@ const ExplorerNew = (props) => {
                                         })
                                         let edges = getMissingEdgesInfo(missingPointsDict);
                                         renderMissingEdges(edges, missingPointsDict);
-                                    }
+        }
+
+        pointSelection = d3.select(`#scatterplot_g_${props.dataset}_${props.method}`)
+                        .append("rect")
+                        .attr("width", width + margin.hor * 2)
+                        .attr("height", height  + margin.ver * 2)
+                        .attr("transform", "translate(-" + margin.hor + ", -" + margin.ver + ")")
+                        .style("fill-opacity", 0)
+                        .on("click", function(event) {
+                            if(!isSelecting.current) {
+                                
+                                const [scale, transX, transY] = getTransformValue();
+                                const realX = (event.offsetX - transX + margin.hor) / scale;
+                                const realY = (event.offsetY - transY + margin.hor) / scale;
+                                
+                                if(!isMakingContour.current) {
+                                    // 새 점
+                                    isMakingContour.current = true;
+                                    // contour.current.push([event.offsetX, event.offsetY])
+                                    contour.current.push([realX, realY])
+                                    svgContour.append("path")
+                                            .attr("id", "current_path")
+                                            .attr("fill", "none")
+                                            .attr("stroke", "blue")
+                                            .attr("storke-width", 1)
+                                            .attr("stroke-dasharray", "2 ");
+                                }
+                                else {
+                                    // 이미 시작점은 존재한 상태에서 새로운 점 그리는 중 
+                                    svgContour.select("#current_path")
+                                            .attr("id", "")
+                                            .attr("d", () => {
+                                                let start, end;
+                                                if (Math.abs(realX - contour.current[0][0]) < 4 &&
+                                                    Math.abs(realY - contour.current[0][1]) < 4) {
+                                                        start = contour.current[contour.current.length - 1];
+                                                        end = contour.current[0];
+                                                        isSelecting.current = true;
+                                                        isMakingContour.current = false; // finish making contour
+                                                    }
+                                                else {
+                                                    contour.current.push([realX, realY])
+                                                    start = contour.current[contour.current.length - 2];
+                                                    end = contour.current[contour.current.length - 1];
+                                                    svgContour.append("path")
+                                                                .attr("id", "current_path")
+                                                                .attr("fill", "none")
+                                                                .attr("stroke", "blue")
+                                                                .attr("storke-width", 1)
+                                                                .attr("stroke-dasharray", "2 ");
+                                                }
+                                                
+                                                return d3.line()
+                                                            .x(datum => datum[0])
+                                                            .y(datum => datum[1])
+                                                            ([[start[0] - margin.hor / scale, start[1] - margin.ver / scale],[end[0] - margin.hor / scale, end[1] - margin.ver / scale]])
+                                            })
                                     
+
+                                    if(isSelecting.current) { // finish making contour 마지막검에서 끝날때 
+                                        finalPointSelection();
+                                    }   
                                 }
                                 if(isMakingContour.current){
+
+                                    // 마지막합쳐질떄 제외하고 세 점을 만들어야 함.
+                                    
+                                    // console.log(event.offsetX, event.offsetY);
                                     svgContour.append("circle")
                                             .attr("r", 1.5)
-                                            .attr("cx", event.offsetX - margin.hor)
-                                            .attr("cy", event.offsetY - margin.ver)
+                                            .attr("cx", realX - margin.hor / scale)
+                                            .attr("cy", realY - margin.ver / scale)
                                             .attr("fill", "none")
                                             .attr("stroke", "blue")
                                             .attr("stroke-width", 1);
                                 }
                             }
+                            else { // 이미 selection있을 경우
+                                // clearing
+                                // TODO : refresh
+
+                                // contour.current = [];
+                                // const [scale, transX, transY] = getTransformValue();
+                                // const realX = (event.offsetX - transX + margin.hor) / scale;
+                                // const realY = (event.offsetY - transY + margin.hor) / scale;
+                                //     // 새 점
+                                //     isMakingContour.current = true;
+                                //     contour.current.push([realX, realY])
+                                //     svgContour.append("path")
+                                //             .attr("id", "current_path")
+                                //             .attr("fill", "none")
+                                //             .attr("stroke", "blue")
+                                //             .attr("storke-width", 1)
+                                //             .attr("stroke-dasharray", "2 ");
+                                //     isSelecting.current = false;
+
+                            }
                         })
                         .on("mousemove", function(event) {
-                            console.log('mouseMove')
                             svgContour.select("#current_path")
                                         .attr("d",() =>{
+                                            const [scale, transX, transY] = getTransformValue();
+                                            const realX = (event.offsetX - transX + margin.hor) / scale;
+                                            const realY = (event.offsetY - transY + margin.ver) / scale;
                                             let start = contour.current[contour.current.length - 1]
                                             let end;
-                                            if (Math.abs(event.offsetX - contour.current[0][0]) < 4 &&
-                                                Math.abs(event.offsetY - contour.current[0][1]) < 4) 
+                                            if (Math.abs(realX - contour.current[0][0]) < 4 &&
+                                                Math.abs(realY - contour.current[0][1]) < 4) 
                                                 end = contour.current[0];
-                                            else end = [event.offsetX, event.offsetY]
+                                            else end = [realX, realY]
                                             return d3.line()
                                                     .x(datum => datum[0])
                                                     .y(datum => datum[1])
-                                                    ([[start[0] - margin.hor, start[1] - margin.ver],[end[0] - margin.hor, end[1] - margin.ver]])
-
+                                                    ([[start[0] - margin.hor / scale, start[1] - margin.ver / scale],[end[0] - margin.hor / scale, end[1] - margin.ver / scale]])
                                         })
-                            
+                                    })
+                        .on('dblclick', e => {
+                            svgContour.select("#current_path")
+                                        .attr("d", () => {
+                                            let start = contour.current[contour.current.length - 1];
+                                            let end = contour.current[0];
+                                            const scale = getTransformValue()[0];
+                                            return d3.line()
+                                                    .x(datum => datum[0])
+                                                    .y(datum => datum[1])
+                                                    ([[start[0] - margin.hor / scale, start[1] - margin.ver / scale],[end[0] - margin.hor / scale, end[1] - margin.ver / scale]])
+                                        })
+                                        .attr("id", "")
+                                        .attr("d", () => {
+                                            const scale = getTransformValue()[0];
+                                                let start, end;
+                                                start = contour.current[contour.current.length - 1];
+                                                end = contour.current[0];
+                                                isSelecting.current = true;
+                                                isMakingContour.current = false; // finish making contour
+                                                return d3.line()
+                                                            .x(datum => datum[0])
+                                                            .y(datum => datum[1])
+                                                            ([[start[0] - margin.hor / scale, start[1] - margin.ver / scale],[end[0] - margin.hor / scale, end[1] - margin.ver / scale]])
+                                            });
+
+                                            finalPointSelection();
+
                         })
- 
+                        .on("contextmenu", e => {
+                            if (!isSelecting.current){
+                            e.preventDefault();
+                            // svgContour아래에 있는거 다 지우면 됨. 
+                            // contour안에 있는거 지우고
+                            // 
+                            contour.current = [];
+                            svgContour.select("#current_path")
+                                        .attr("id", "")
+
+                            svgContour.selectAll("*").remove();
+
+                            isSelecting.current = false;
+                            isMakingContour.current = false;
+                            }
+                        });
         
 
+        svgMainView = d3.select("#scatterplot_" + props.dataset + "_" + props.method);
+        svgMainView.select("rect").style("fill-opacity", 0);
+        gMainView = d3.select("#scatterplot_g_" + props.dataset + "_" + props.method);
+        
 
         d3.select(`#scatterplot_circle_g_${props.dataset}_${props.method}`).selectAll("circle")
                             .data(pointsData)
                             .join(enter => null, update => {
                                 update.on("mouseenter", function() {
-                                    console.log('mouseEnter')
                                     if(!isSelecting.current && !isMakingContour.current)
                                        d3.select(this).attr("r", radius * 3)
                                 })
                                 .on("mouseleave", function() {
-                                    console.log('mouseLeave')
                                     if(!isSelecting.current && !isMakingContour.current)
                                        d3.select(this).attr("r", radius)
                                 })
                                 .on("click", function(e, d) {
-                                    console.log('click')
                                     if(!isSelecting.current && !isMakingContour.current){
                                        isSelecting.current = true;
                                        d3.select(this).attr("r", radius * 5);
@@ -347,14 +477,67 @@ const ExplorerNew = (props) => {
         // minimap
 
         drawPlot(ratio, "minimap"); 
+        svgMiniMap = d3.select("#minimap_" + props.dataset + "_" + props.method)
+                        .style("padding", "10px 0 0 10px");
 
+
+                        svgMainView.on('wheel', e => {
+                            let newScale, newTransX, newTransY;
+                            const {offsetX, offsetY, wheelDelta} = e;
+                            
+                            const [scale, transX, transY] = getTransformValue();
+                
+                            if (wheelDelta > 0){ // ZOOM IN
+                                if (scale < 5.0){
+                                    newScale = parseFloat(scale) + parseFloat(0.1);
+                                    newTransX = transX - 0.1 * (offsetX - transX) / scale;
+                                    newTransY = transY - 0.1 * (offsetY - transY) / scale;
+                                    gMainView.attr('transform', `translate(${newTransX.toFixed(3)}, ${newTransY.toFixed(3)}) scale(${newScale.toFixed(1)})`);
+                                    
+                                    brush.move(gBrush, [
+                                        [(margin.hor * newScale - newTransX) * ratio / newScale, (margin.ver * newScale - newTransY) * ratio / newScale],
+                                        [(margin.hor * newScale - newTransX) * ratio / newScale + (width + 2 * margin.hor) * ratio / newScale,
+                                         (margin.ver * newScale - newTransY) * ratio / newScale + (height + 2 * margin.ver) * ratio / newScale],
+                                    ]);
+                                }
+                            }
+                            else if (scale > 1.0){ // ZOOM OUT
+                                    newScale = parseFloat(scale) - parseFloat(0.1);
+                                    newTransX = transX + 0.1 * (offsetX - transX) / scale;
+                                    newTransY = transY + 0.1 * (offsetY - transY) / scale;
+                                    const moveX = d3.max([d3.min([newTransX, margin.hor * newScale]),(30 / newScale) - (newScale - 1.0) * width]);
+                                    const moveY = d3.max([d3.min([newTransY, margin.ver * newScale]),(30 / newScale) - (newScale - 1.0) * height]);
+                                    gMainView.attr('transform', `translate(${moveX.toFixed(3)}, ${moveY.toFixed(3)}) scale(${newScale.toFixed(1)})`);
+                
+                                    brush.move(gBrush, [
+                                        [(margin.hor * newScale - moveX) * ratio / newScale, (margin.ver * newScale - moveY) * ratio / newScale],
+                                        [(margin.hor * newScale - moveX) * ratio / newScale + (width + 2 * margin.hor) * ratio / newScale,
+                                         (margin.ver * newScale - moveY) * ratio / newScale + (height + 2 * margin.ver) * ratio / newScale],
+                                    ]);
+                            }
+                        })
+
+        svgMainView.call(
+            d3.drag()
+            .on("drag",drag));
+
+        gBrush = svgMiniMap.append('g').attr('id', 'gBrush');
+
+        gBrush.call(brush);
+        brush.move(gBrush, [
+            [0,0],
+            [(width + 2 * margin.hor) * ratio, (height + 2 * margin.ver) * ratio]
+        ]);
+        
+        svgMiniMap.selectAll('.handle').remove();
+        svgMiniMap.selectAll('.overlay').remove();
 
     }, []);
    
 
 
     return (
-        <div>
+        <div id>
             <svg id={`scatterplot_${props.dataset}_${props.method}`}></svg>
             <svg id={`minimap_${props.dataset}_${props.method}`}></svg>
         </div>
