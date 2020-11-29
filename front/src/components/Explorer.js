@@ -193,7 +193,7 @@ const Explorer = (props) => {
     }, []);
 
     return (
-        <div>
+        <div id="explorer">
             <svg id={"scatterplot_" + props.dataset + props.method}></svg>
             <svg id={"minimap_" + props.dataset + props.method} ></svg>
         </div>
