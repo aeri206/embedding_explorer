@@ -4,6 +4,7 @@ import Explorer from './components/Explorer';
 import BasicInfoTab from './components/Left-BasicInfo';
 import ControlTab from './components/Left-Control';
 import ShepardDiagram from './components/Detail-Shepard';
+import BarChart from './components/Detail-BarChart';
 import ExplorerNew from './components/Explorer-new';
 
 function App() {
@@ -35,8 +36,10 @@ function App() {
           />
         </div>
         <div id="detail-info">
-          <div style={{textAlign:'center', height:'25px', fontSize:'16px'}}>Shepard Diagram</div>
+          <div style={{textAlign:'center', height:'25px', fontSize:'16px', width:'250px'}}>Shepard Diagram</div>
           <ShepardDiagram/>
+          <div style={{textAlign:'center', height:'25px', fontSize:'16px', paddingTop:'10px'}}>Label Distribution</div>
+          <BarChart/>
         </div>
       </div>
       <footer/>
