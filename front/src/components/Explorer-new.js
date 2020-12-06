@@ -33,7 +33,8 @@ const ExplorerNew = (props) => {
 
     const width = 800;
     const height = 800;
-    const margin = { hor: width / 40, ver: height / 40 };
+    // const margin = { hor: width / 40, ver: height / 40 };
+    const margin = { hor: 15, ver: 15 };
 
     const [minX, maxX] = d3.extent(pointsData, d => d.coor[0]);
     const [minY, maxY] = d3.extent(pointsData, d => d.coor[1]);
