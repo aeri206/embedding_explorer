@@ -2,6 +2,8 @@ import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import { precisionPrefix } from 'd3';
 import inside from 'point-in-polygon'
+import ShepardDiagram from './Detail-Shepard';
+import BarChart from './Detail-BarChart';
 
 const ExplorerNew = (props) => {
 
@@ -29,9 +31,9 @@ const ExplorerNew = (props) => {
 
     // console.log(pointsData, edgesData, missingPointsData, knnData) 
 
-    const width = 900;
-    const height = 900;
-    const margin = { hor: width / 20, ver: height / 20 };
+    const width = 800;
+    const height = 800;
+    const margin = { hor: width / 40, ver: height / 40 };
 
     const [minX, maxX] = d3.extent(pointsData, d => d.coor[0]);
     const [minY, maxY] = d3.extent(pointsData, d => d.coor[1]);
@@ -44,7 +46,7 @@ const ExplorerNew = (props) => {
                         .domain([minY, maxY])
                         .range([0, height]);
 
-    const ratio = 0.4;
+    const ratio = 0.38;
 
 
     let svgContour, svgContourPoints;
@@ -110,8 +112,8 @@ const ExplorerNew = (props) => {
             .attr("width", ratio * (width + margin.hor * 2))
             .attr("height", ratio * (height  + margin.ver * 2))
             .style("fill-opacity", 0)
-            .style("stroke", "black")
-            .style("stroke-width", 2)
+            // .style("stroke", "black")
+            // .style("stroke-width", 2)
 
         let svg = svgs.append("g")
             .attr("id", `${prefix}_g_${props.dataset}_${props.method}`)
@@ -476,10 +478,10 @@ const ExplorerNew = (props) => {
 
         // minimap
 
-        drawPlot(ratio, "minimap"); 
+        drawPlot(ratio, "minimap");
+        d3.select("#minimap").style("position","fixed");
         svgMiniMap = d3.select("#minimap_" + props.dataset + "_" + props.method)
-                        .style("padding", "10px 0 0 10px");
-
+                        
 
                         svgMainView.on('wheel', e => {
                             let newScale, newTransX, newTransY;
@@ -537,9 +539,24 @@ const ExplorerNew = (props) => {
 
 
     return (
-        <div id>
-            <svg id={`scatterplot_${props.dataset}_${props.method}`}></svg>
-            <svg id={`minimap_${props.dataset}_${props.method}`}></svg>
+        <div id="content">
+            <div id="content-left">
+                <div id="scatterplot">
+                    <svg id={`scatterplot_${props.dataset}_${props.method}`}></svg>
+                </div>
+                <div id="detailview"> DETAIL VIEW (TODO) </div>
+            </div>
+            <div id="content-right">
+                <div id="compareview"> COMPARE VIEW (TODO) </div>
+                <ShepardDiagram/>
+                <BarChart/>
+            </div>
+            
+            <div id="minimap" style={{bottom:0, left:0}}>
+                <div className="minimap-title">Minimap</div>
+                <svg id={`minimap_${props.dataset}_${props.method}`}></svg>
+            </div>
+            <div id="repoview"></div>
         </div>
     );
 };
