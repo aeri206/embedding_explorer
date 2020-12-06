@@ -11,20 +11,14 @@ function App() {
   return (
     <div className="App">
       <title>Embeding Explorer</title>
-      <header className="App-header">
+      <div className="App-header">
         Distortion in Dimension Reduction
-      </header>
+      </div>
       <div id="body">
         <div id="left-bar">
             <BasicInfoTab/>
             <ControlTab/>
         </div>
-        <div id="content">
-          {/* <Explorer
-            method="pca"
-            dataset="mnist_sampled_10"
-            isLabel={true}
-          /> */}
           <ExplorerNew
             method="pca"
             dataset="mnist_sampled_10"
@@ -34,13 +28,10 @@ function App() {
             radius={0.7}
             stroke={1.5}
           />
-        </div>
-        <div id="detail-info">
-          <div style={{textAlign:'center', height:'25px', fontSize:'16px', width:'250px'}}>Shepard Diagram</div>
-          <ShepardDiagram/>
+        {/* <div id="detail-info">
+          <div style={{textAlign:'center', height:'25px', fontSize:'16px', width:'250px'}}>Shepard Diagram</div> 
           <div style={{textAlign:'center', height:'25px', fontSize:'16px', paddingTop:'10px'}}>Label Distribution</div>
-          <BarChart/>
-        </div>
+        </div> */}
       </div>
       <footer/>
     </div>

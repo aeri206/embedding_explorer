@@ -26,15 +26,18 @@
 .App-header {
   background-color: var(--black-color);
   height: 40px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  position:fixed;
+  top:0;
+  width:100%;
   font-size: 20px;
   font-weight: 700;
+  text-align:center;
   color: var(--background-color);
 }
 
+.App-header + #body {
+  padding-top:40px;
+}
 .App-link {
   color: var(--accent-color);
 }
@@ -63,7 +66,7 @@
   border-bottom: 1px solid var(--border-color);
 
 }
-.tab-title{
+.tab-title, .minimap-title{
   padding-bottom: 5px;
   font-size: var(--label-font-size);
   font-weight: 500;
@@ -120,4 +123,57 @@ button {
 
 #content {
   margin-left:360px;
+  min-width:1360px;
+  width:calc(100vw - 560px);
+  height:calc(100vh - 40px);
+  min-height:1040px;
+}
+
+#content-left, #content-right {
+  display:inline-block;
+  vertical-align: top;
+}
+
+#minimap {
+  padding:12px 20px 20px;
+}
+
+#scatterplot {
+  width:840px;
+  height:840px;
+  border:2px solid var(--tab-color);
+}
+
+#detailview{
+  height:calc(100vh - 880px);
+  border:1px solid var(--tab-color);
+
+  font-size:50px; /* should be removed */
+}
+
+#content-right > div {
+  border:1px solid var(--tab-color);
+}
+
+#minimap {
+  border:1px solid var(--border-color);
+}
+
+#compareview{
+  height:530px;
+  width: 530px;  
+  color:var(--border-color);
+  stroke: var(--tab-color);
+
+  font-size:50px; /* should be removed */
+}
+
+#repoview{
+  width:200px;
+  height: calc(100vh - 40px);
+  position:fixed;
+  top:40px;
+  right:0;
+  padding: 12px 20px 20px;
+  background-color: #fff8f4;
 }
