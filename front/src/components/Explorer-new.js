@@ -53,6 +53,8 @@ const ExplorerNew = (props) => {
     let svgContour, svgContourPoints;
     let svgMainView, gMainView, svgMiniMap, gBrush;
 
+    let miniContourPoints;
+
     let pointSelection;
 
     const radius = props.radius;
@@ -237,9 +239,11 @@ const ExplorerNew = (props) => {
         console.log('useEffect1')
 
         drawPlot(1.0, "scatterplot");
+        drawPlot(ratio, "minimap");
         svgContour = d3.select(`#scatterplot_contour_g_${props.dataset}_${props.method}`);
         svgContourPoints = d3.select(`#scatterplot_contour_point_g_${props.dataset}_${props.method}`);
-
+        miniContourPoints = d3.select(`#minimap_contour_point_g_${props.dataset}_${props.method}`);
+        
         function renderMissingEdges(edges, missingPointsDict) {
             d3.select(`#scatterplot_missing_edge_g_${props.dataset}_${props.method}`)
                     .selectAll("path")
@@ -258,6 +262,25 @@ const ExplorerNew = (props) => {
                           .style("opacity", d => {
                               return (missingPointsDict[d[0]] + missingPointsDict[d[1]]) / 2
                           });
+
+
+            d3.select(`#minimap_missing_edge_g_${props.dataset}_${props.method}`)
+                          .selectAll("path")
+                                .data(edges)
+                                .enter()
+                                .append("path")
+                                .attr("fill", "none")
+                                .attr("stroke-width", strokeWidth)
+                                .attr("stroke", "red")
+                                .attr("d", d => {
+                                    return d3.line()
+                                            .x(datum => ratio * xScale(pointsData[datum].coor[0]))
+                                            .y(datum => ratio * yScale(pointsData[datum].coor[1]))
+                                            (d);
+                                })
+                                .style("opacity", d => {
+                                    return (missingPointsDict[d[0]] + missingPointsDict[d[1]]) / 2
+                                });
         }
 
         const finalPointSelection = () => {
@@ -269,6 +292,15 @@ const ExplorerNew = (props) => {
                                                 .attr("r", radius * 3)
                                                 .attr("cx", d => xScale(pointsData[d].coor[0]))
                                                 .attr("cy", d => yScale(pointsData[d].coor[1]))
+                                                .attr("fill", "blue");
+
+                                        miniContourPoints.selectAll("circle")
+                                                .data(points)
+                                                .enter()
+                                                .append("circle")
+                                                .attr("r", radius * 6 * ratio)
+                                                .attr("cx", d => ratio * xScale(pointsData[d].coor[0]))
+                                                .attr("cy", d => ratio * yScale(pointsData[d].coor[1]))
                                                 .attr("fill", "blue");
                                     
                                         let missingPointsDict = points.reduce(function(acc, val) {
@@ -367,20 +399,14 @@ const ExplorerNew = (props) => {
                                 // clearing
                                 // TODO : refresh
 
-                                // contour.current = [];
-                                // const [scale, transX, transY] = getTransformValue();
-                                // const realX = (event.offsetX - transX + margin.hor) / scale;
-                                // const realY = (event.offsetY - transY + margin.hor) / scale;
-                                //     // 새 점
-                                //     isMakingContour.current = true;
-                                //     contour.current.push([realX, realY])
-                                //     svgContour.append("path")
-                                //             .attr("id", "current_path")
-                                //             .attr("fill", "none")
-                                //             .attr("stroke", "blue")
-                                //             .attr("storke-width", 1)
-                                //             .attr("stroke-dasharray", "2 ");
-                                //     isSelecting.current = false;
+                                contour.current = [];
+                                isSelecting.current = false;
+                                svgContour.selectAll("path").remove();
+                                svgContour.selectAll("circle").remove();
+                                svgContourPoints.selectAll("circle").remove();
+                                miniContourPoints.selectAll("circle").remove();
+                                d3.select(`#scatterplot_missing_edge_g_${props.dataset}_${props.method}`).selectAll("path").remove();
+                                d3.select(`#minimap_missing_edge_g_${props.dataset}_${props.method}`).selectAll("path").remove();
 
                             }
                         })
@@ -479,7 +505,6 @@ const ExplorerNew = (props) => {
 
         // minimap
 
-        drawPlot(ratio, "minimap");
         d3.select("#minimap").style("position","fixed");
         svgMiniMap = d3.select("#minimap_" + props.dataset + "_" + props.method)
                         
@@ -518,7 +543,43 @@ const ExplorerNew = (props) => {
                                          (margin.ver * newScale - moveY) * ratio / newScale + (height + 2 * margin.ver) * ratio / newScale],
                                     ]);
                             }
-                        })
+                        });
+
+                svgMiniMap.on('wheel', e => {
+                    let newScale, newTransX, newTransY;
+                    const {offsetX, offsetY, wheelDelta} = e;
+                    console.log(offsetX, offsetY);
+                    
+                    const [scale, transX, transY] = getTransformValue();
+                    if (wheelDelta > 0){ // ZOOM IN
+                        if (scale < 5.0){
+                            newScale = parseFloat(scale) + parseFloat(0.1);
+                            newTransX = transX - 0.1 * (offsetX / ratio - transX) / scale;
+                            newTransY = transY - 0.1 * (offsetY / ratio- transY) / scale;
+                            gMainView.attr('transform', `translate(${newTransX.toFixed(3)}, ${newTransY.toFixed(3)}) scale(${newScale.toFixed(1)})`);
+                            
+                            brush.move(gBrush, [
+                                [(margin.hor * newScale - newTransX) * ratio / newScale, (margin.ver * newScale - newTransY) * ratio / newScale],
+                                [(margin.hor * newScale - newTransX) * ratio / newScale + (width + 2 * margin.hor) * ratio / newScale,
+                                 (margin.ver * newScale - newTransY) * ratio / newScale + (height + 2 * margin.ver) * ratio / newScale],
+                            ]);
+                        }
+                    }
+                    else if (scale > 1.0){ // ZOOM OUT
+                            newScale = parseFloat(scale) - parseFloat(0.1);
+                            newTransX = transX + 0.1 * (offsetX / ratio - transX) / scale;
+                            newTransY = transY + 0.1 * (offsetY / ratio- transY) / scale;
+                            const moveX = d3.max([d3.min([newTransX, margin.hor * newScale]),(30 / newScale) - (newScale - 1.0) * width]);
+                            const moveY = d3.max([d3.min([newTransY, margin.ver * newScale]),(30 / newScale) - (newScale - 1.0) * height]);
+                            gMainView.attr('transform', `translate(${moveX.toFixed(3)}, ${moveY.toFixed(3)}) scale(${newScale.toFixed(1)})`);
+        
+                            brush.move(gBrush, [
+                                [(margin.hor * newScale - moveX) * ratio / newScale, (margin.ver * newScale - moveY) * ratio / newScale],
+                                [(margin.hor * newScale - moveX) * ratio / newScale + (width + 2 * margin.hor) * ratio / newScale,
+                                 (margin.ver * newScale - moveY) * ratio / newScale + (height + 2 * margin.ver) * ratio / newScale],
+                            ]);
+                    }
+                });
 
         svgMainView.call(
             d3.drag()
