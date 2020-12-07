@@ -13,7 +13,7 @@ const ExplorerNew = (props) => {
     let pointsData = require("../json/" + jsonFileName + "_points.json");
     let edgesData = require("../json/" + jsonFileName + "_edges.json");
     let missingPointsData = require("../json/" + jsonFileName + "_missing_points.json")
-    const label_data = Array.from(new Set(pointsData.map((d) => d.label.toString()))).sort((a,b)=> a - b);
+    const label_data = Array.from(new Set(pointsData.map((d) => d.label))).sort((a,b)=> a - b);
     // pointsData = pointsData.map((d, i) => {
     //     return {
     //         coor: d.coor,
