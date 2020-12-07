@@ -4,6 +4,7 @@ import { precisionPrefix } from 'd3';
 import inside from 'point-in-polygon'
 import ShepardDiagram from './Detail-Shepard';
 import BarChart from './Detail-BarChart';
+import CompareView from "./CompareView";
 import BottomBarChart from './Bottom-BarChart';
 
 const ExplorerNew = (props) => {
@@ -619,9 +620,20 @@ const ExplorerNew = (props) => {
                 </div>
             </div>
             <div id="content-right">
-                <div id="compareview"> COMPARE VIEW (TODO) </div>
-                <ShepardDiagram/>
+
+
+                <CompareView
+                    main_method={props.method}
+                    dataset={props.dataset}
+                    
+                />
+                <ShepardDiagram
+                    method={props.method}
+                    dataset={props.dataset} 
+                />
+
                 <BarChart label_list={label_data}/>
+
             </div>
             
             <div id="minimap" style={{bottom:0, left:0}}>
