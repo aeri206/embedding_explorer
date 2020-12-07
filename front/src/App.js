@@ -5,6 +5,9 @@ import ControlTab from './components/Left-Control';
 import ExplorerNew from './components/Explorer-new';
 
 function App() {
+
+  const methods = ["pca" , "isomap", "tsne", "umap"];
+
   return (
     <div className="App">
       <title>Embeding Explorer</title>
@@ -17,13 +20,14 @@ function App() {
             <ControlTab/>
         </div>
           <ExplorerNew
+            methods={methods}
             method="pca"
             dataset="mnist_sampled_10"
-            isLabel={false}
+            isLabel={true}
             showMissing={true}
             showFalse={true}
-            radius={0.7}
-            stroke={1.5}
+            radius={2.5}
+            stroke={3}
           />
         {/* <div id="detail-info">
           <div style={{textAlign:'center', height:'25px', fontSize:'16px', width:'250px'}}>Shepard Diagram</div> 
