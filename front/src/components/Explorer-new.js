@@ -610,7 +610,10 @@ const ExplorerNew = (props) => {
             </div>
             <div id="content-right">
                 <div id="compareview"> COMPARE VIEW (TODO) </div>
-                <ShepardDiagram/>
+                <ShepardDiagram
+                    method={props.method}
+                    dataset={props.dataset} 
+                />
                 <BarChart/>
             </div>
             
