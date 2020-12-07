@@ -36,7 +36,6 @@ const ShepardDiagram = (props) => {
     }
     matrix.push(current)
   }
-  console.log(matrix)
   // console.log(shepardMatrix(dist_orig, dist_emb))
 
   const onClick = (x, y) => alert(`Clicked ${x}, ${y}.`)

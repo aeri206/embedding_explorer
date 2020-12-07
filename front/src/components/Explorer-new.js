@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
-import { precisionPrefix } from 'd3';
+import { color, precisionPrefix } from 'd3';
 import inside from 'point-in-polygon'
 import ShepardDiagram from './Detail-Shepard';
 import BarChart from './Detail-BarChart';
@@ -295,7 +295,7 @@ const ExplorerNew = (props) => {
                                                 .data(points)
                                                 .enter()
                                                 .append("circle")
-                                                .attr("r", radius * 3)
+                                                .attr("r", radius * 2)
                                                 .attr("cx", d => 
                                                     xScale(pointsData[d].coor[0]))
                                                 .attr("cy", d => yScale(pointsData[d].coor[1]))
@@ -624,8 +624,14 @@ const ExplorerNew = (props) => {
 
                 <CompareView
                     main_method={props.method}
+                    methods={props.methods}
                     dataset={props.dataset}
-                    
+                    update={update}
+                    points={pointsIn}
+                    data={pointsData}
+                    label={label_data}
+                    dataset={props.dataset}
+                    colorScale={colorScale}
                 />
                 <ShepardDiagram
                     method={props.method}
