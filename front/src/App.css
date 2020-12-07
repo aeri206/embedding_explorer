@@ -101,7 +101,11 @@
 #detailview{
   height:calc(100vh - 870px); width: 828px;
   border-right:2px solid var(--tab-color);
-  font-size:50px; /* should be removed */
+}
+
+#detailview > #selectionBarChart {
+  width : 80%;
+  height : 80%;
 }
 
 #compareview{

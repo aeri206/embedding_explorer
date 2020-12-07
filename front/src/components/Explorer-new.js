@@ -1,10 +1,11 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { precisionPrefix } from 'd3';
 import inside from 'point-in-polygon'
 import ShepardDiagram from './Detail-Shepard';
 import BarChart from './Detail-BarChart';
 import CompareView from "./CompareView";
+import BottomBarChart from './Bottom-BarChart';
 
 const ExplorerNew = (props) => {
 
@@ -12,15 +13,14 @@ const ExplorerNew = (props) => {
     let pointsData = require("../json/" + jsonFileName + "_points.json");
     let edgesData = require("../json/" + jsonFileName + "_edges.json");
     let missingPointsData = require("../json/" + jsonFileName + "_missing_points.json")
-
-
-    pointsData = pointsData.map((d, i) => {
-        return {
-            coor: d.coor,
-            lable: d.label,
-            idx: i
-        };
-    });
+    const label_data = Array.from(new Set(pointsData.map((d) => d.label.toString()))).sort((a,b)=> a - b);
+    // pointsData = pointsData.map((d, i) => {
+    //     return {
+    //         coor: d.coor,
+    //         lable: d.label,
+    //         idx: i
+    //     };
+    // });
 
     let knnData = edgesData.reduce(function(acc, val) {
         if (val.start in acc) acc[val.start].push(val.end);
@@ -64,7 +64,8 @@ const ExplorerNew = (props) => {
 
     let colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 
-
+    const [update, setUpdate] = useState();
+    const [pointsIn, setPointsIn] = useState([]);
     const isSelecting = useRef(false);
     const isMakingContour = useRef(false);
     let contour = useRef([]);
@@ -285,13 +286,18 @@ const ExplorerNew = (props) => {
         }
 
         const finalPointSelection = () => {
+            
             let points = pointsInPolygon(contour.current);
+            setPointsIn(() => points);
+            setUpdate(() => true);
+            
                                         svgContourPoints.selectAll("circle")
                                                 .data(points)
                                                 .enter()
                                                 .append("circle")
                                                 .attr("r", radius * 3)
-                                                .attr("cx", d => xScale(pointsData[d].coor[0]))
+                                                .attr("cx", d => 
+                                                    xScale(pointsData[d].coor[0]))
                                                 .attr("cy", d => yScale(pointsData[d].coor[1]))
                                                 .attr("fill", "blue");
 
@@ -402,6 +408,8 @@ const ExplorerNew = (props) => {
 
                                 contour.current = [];
                                 isSelecting.current = false;
+                                setUpdate(() => false);
+
                                 svgContour.selectAll("path").remove();
                                 svgContour.selectAll("circle").remove();
                                 svgContourPoints.selectAll("circle").remove();
@@ -471,6 +479,7 @@ const ExplorerNew = (props) => {
 
                             isSelecting.current = false;
                             isMakingContour.current = false;
+                            setUpdate(() => false);
                             }
                         });
         
@@ -549,7 +558,6 @@ const ExplorerNew = (props) => {
                 svgMiniMap.on('wheel', e => {
                     let newScale, newTransX, newTransY;
                     const {offsetX, offsetY, wheelDelta} = e;
-                    console.log(offsetX, offsetY);
                     
                     const [scale, transX, transY] = getTransformValue();
                     if (wheelDelta > 0){ // ZOOM IN
@@ -607,9 +615,12 @@ const ExplorerNew = (props) => {
                 <div id="scatterplot">
                     <svg id={`scatterplot_${props.dataset}_${props.method}`}></svg>
                 </div>
-                <div id="detailview"> DETAIL VIEW (TODO) </div>
+                <div id="detailview">
+                    <BottomBarChart data={pointsData} update={update} points={pointsIn} label={label_data}/>
+                </div>
             </div>
             <div id="content-right">
+
 
                 <CompareView
                     main_method={props.method}
@@ -620,7 +631,9 @@ const ExplorerNew = (props) => {
                     method={props.method}
                     dataset={props.dataset} 
                 />
-                <BarChart/>
+
+                <BarChart label_list={label_data}/>
+
             </div>
             
             <div id="minimap" style={{bottom:0, left:0}}>
