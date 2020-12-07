@@ -62,10 +62,12 @@ const ExplorerNew = (props) => {
     const strokeWidth = props.stroke;
 
 
+
     let colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 
     const [update, setUpdate] = useState();
     const [pointsIn, setPointsIn] = useState([]);
+    const [missingPointsIn, setMissingPointsIn] = useState([]);
     const isSelecting = useRef(false);
     const isMakingContour = useRef(false);
     let contour = useRef([]);
@@ -288,43 +290,46 @@ const ExplorerNew = (props) => {
         const finalPointSelection = () => {
             
             let points = pointsInPolygon(contour.current);
+            
+            svgContourPoints.selectAll("circle")
+                    .data(points)
+                    .enter()
+                    .append("circle")
+                    .attr("r", radius * 2)
+                    .attr("cx", d => 
+                        xScale(pointsData[d].coor[0]))
+                    .attr("cy", d => yScale(pointsData[d].coor[1]))
+                    .attr("fill", "blue");
+
+            miniContourPoints.selectAll("circle")
+                    .data(points)
+                    .enter()
+                    .append("circle")
+                    .attr("r", radius * 6 * ratio)
+                    .attr("cx", d => ratio * xScale(pointsData[d].coor[0]))
+                    .attr("cy", d => ratio * yScale(pointsData[d].coor[1]))
+                    .attr("fill", "blue");
+        
+            let missingPointsDict = points.reduce(function(acc, val) {
+                let currentDict = missingPointsData[val];
+                Object.keys(currentDict).forEach(key => {
+                    if (key in acc) acc[key] += currentDict[key];
+                    else            acc[key] =  currentDict[key];
+                });
+                return acc;
+            }, {})
+            
+
+            let listLen = points.length;
+            Object.keys(missingPointsDict).forEach(d => {
+                missingPointsDict[d] /= listLen;
+            })
+            let edges = getMissingEdgesInfo(missingPointsDict);
+            renderMissingEdges(edges, missingPointsDict);
+
+            setMissingPointsIn(() => missingPointsDict);
             setPointsIn(() => points);
             setUpdate(() => true);
-            
-                                        svgContourPoints.selectAll("circle")
-                                                .data(points)
-                                                .enter()
-                                                .append("circle")
-                                                .attr("r", radius * 2)
-                                                .attr("cx", d => 
-                                                    xScale(pointsData[d].coor[0]))
-                                                .attr("cy", d => yScale(pointsData[d].coor[1]))
-                                                .attr("fill", "blue");
-
-                                        miniContourPoints.selectAll("circle")
-                                                .data(points)
-                                                .enter()
-                                                .append("circle")
-                                                .attr("r", radius * 6 * ratio)
-                                                .attr("cx", d => ratio * xScale(pointsData[d].coor[0]))
-                                                .attr("cy", d => ratio * yScale(pointsData[d].coor[1]))
-                                                .attr("fill", "blue");
-                                    
-                                        let missingPointsDict = points.reduce(function(acc, val) {
-                                            let currentDict = missingPointsData[val];
-                                            Object.keys(currentDict).forEach(key => {
-                                                if (key in acc) acc[key] += currentDict[key];
-                                                else            acc[key] =  currentDict[key];
-                                            });
-                                            return acc;
-                                        }, {})
-
-                                        let listLen = points.length;
-                                        Object.keys(missingPointsDict).forEach(d => {
-                                            missingPointsDict[d] /= listLen;
-                                        })
-                                        let edges = getMissingEdgesInfo(missingPointsDict);
-                                        renderMissingEdges(edges, missingPointsDict);
         }
 
         pointSelection = d3.select(`#scatterplot_g_${props.dataset}_${props.method}`)
@@ -632,6 +637,7 @@ const ExplorerNew = (props) => {
                     label={label_data}
                     dataset={props.dataset}
                     colorScale={colorScale}
+                    missingPoints={missingPointsIn}
                 />
                 <ShepardDiagram
                     method={props.method}

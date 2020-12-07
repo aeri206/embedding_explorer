@@ -13,7 +13,7 @@ const CompareViewComponent = (props) => {
 
     let width = props.width
     let height = props.height
-    const margin = { hor: 15, ver: 15 };
+    const margin = { hor: 20, ver: 20 };
 
     const [minX, maxX] = d3.extent(pointsData, d => d.coor[0]);
     const [minY, maxY] = d3.extent(pointsData, d => d.coor[1]);
@@ -35,11 +35,17 @@ const CompareViewComponent = (props) => {
     useEffect(() => {
         compareSvg = d3.select("#" + props.method+ "_compare")
                             .attr("width", width + margin.hor * 2)
-                            .attr("height", height + margin.ver * 2);
+                            .attr("height", height + margin.ver * 3);
         
-        compareSvgPoints = compareSvg.append("g").attr("id", props.method+ "_compare_points");
-        svgSelectedPoints = compareSvg.append("g").attr("id", props.method+ "_compare_selected");
-        svgHeighlightedPoints = compareSvg.append("g").attr("id", props.method+ "_compare_highlighted");
+        compareSvgPoints = compareSvg.append("g")
+                                     .attr("id", props.method+ "_compare_points")
+                                     .attr("transform", "translate(" + margin.hor + ", " + (margin.ver * 2) + ")");
+        svgSelectedPoints = compareSvg.append("g")
+                                      .attr("id", props.method+ "_compare_selected")
+                                      .attr("transform", "translate(" + margin.hor + ", " + (margin.ver * 2) + ")");
+        svgHeighlightedPoints = compareSvg.append("g")
+                                          .attr("id", props.method+ "_compare_highlighted")
+                                          .attr("transform", "translate(" + margin.hor + ", " + (margin.ver * 2) + ")");
         compareSvgPoints.selectAll("circle")
                         .data(pointsData)
                         .join(
@@ -52,11 +58,16 @@ const CompareViewComponent = (props) => {
 
                         );
 
+        compareSvg.append("g")
+                  .append("text")
+                  .text(props.method.toUpperCase())
+                  .attr("font-size", 13)
+                  .attr("font-weight", 600)
+                  .attr("y", 30)
+                  .attr("x", 10)
     }, [])
 
     useEffect(() => {
-        console.log(props.update)
-        console.log(props.points)
 
 
 
@@ -68,11 +79,23 @@ const CompareViewComponent = (props) => {
                              .attr("fill", "blue")
                              .attr("r", radius *1.5)
                              .attr("cx", i => xScale(pointsData[i].coor[0]))
-                             .attr("cy", i => yScale(pointsData[i].coor[1]))
+                             .attr("cy", i => yScale(pointsData[i].coor[1]));
+
+            d3.select("#" + props.method+ "_compare_highlighted").selectAll("circle")
+              .data(Object.keys(props.missingPoints))
+              .enter()
+              .append("circle")
+              .attr("fill", "red")
+              .attr("r", radius * 2)
+              .attr("cx", i => xScale(pointsData[i].coor[0]))
+              .attr("cy", i => yScale(pointsData[i].coor[1]))
+              .style("opacity", i => props.missingPoints[i])
+
             
         }
         else {
-            // svgSelectedPoints.selectAll("circle").remove()
+            d3.select("#" + props.method+ "_compare_selected").selectAll("circle").remove()
+            d3.select("#" + props.method+ "_compare_highlighted").selectAll("circle").remove()
         }
 
     }, [props.update])
@@ -86,7 +109,6 @@ const CompareViewComponent = (props) => {
 
     return (
         <div>
-            {props.method}
             <svg id={props.method + "_compare"}>
 
             </svg>
