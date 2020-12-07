@@ -1,18 +1,18 @@
 import React, { useState } from 'react'
 
 
-const Compare = (props) => {
+const CompareView = (props) => {
 
 
 
-    
+
 
     return (
         <div>
-            asdas
+            Compare View(TODO)
         </div>
     )
 
 }
 
-export default Compare;
+export default CompareView;
