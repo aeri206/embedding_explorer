@@ -118,7 +118,8 @@ const ExplorerNew = (props) => {
         svgs.append("rect")
             .attr("width", ratio * (width + margin.hor * 2))
             .attr("height", ratio * (height  + margin.ver * 2))
-            .style("fill-opacity", 0)
+            .style("fill-opacity", 1)
+            .style("fill", "white");
             // .style("stroke", "black")
             // .style("stroke-width", 2)
 
@@ -156,7 +157,7 @@ const ExplorerNew = (props) => {
                                      .attr("cx", d => ratio * xScale(d.coor[0]))
                                      .attr("cy", d => ratio * yScale(d.coor[1]))
                                      .style("opacity", 0.8)
-                                     .attr("r", radius)
+                                     .attr("r", radius * ratio)
                              }
                          );
         
@@ -175,7 +176,7 @@ const ExplorerNew = (props) => {
                         enter => {
                             enter.append("path")
                                  .attr("fill", "none")
-                                 .attr("stroke-width", strokeWidth)
+                                 .attr("stroke-width", strokeWidth * ratio)
                                  .attr("stroke", d => {
                                      if (props.showMissing && props.showFalse) return scaleBivariate(d.false_val, d.missing_val);
                                      else return "black";
@@ -274,7 +275,7 @@ const ExplorerNew = (props) => {
                                 .enter()
                                 .append("path")
                                 .attr("fill", "none")
-                                .attr("stroke-width", strokeWidth)
+                                .attr("stroke-width", strokeWidth * ratio)
                                 .attr("stroke", "red")
                                 .attr("d", d => {
                                     return d3.line()
@@ -305,7 +306,7 @@ const ExplorerNew = (props) => {
                     .data(points)
                     .enter()
                     .append("circle")
-                    .attr("r", radius * 6 * ratio)
+                    .attr("r", radius * 2 * ratio)
                     .attr("cx", d => ratio * xScale(pointsData[d].coor[0]))
                     .attr("cy", d => ratio * yScale(pointsData[d].coor[1]))
                     .attr("fill", "blue");
