@@ -9,6 +9,8 @@ const width = 800;
 const height = 150;
 const margin = {top : 10, left : 60, bottom : 30, right : 30};
 
+const tooltipMaxLen = 200;
+
 
 
 
@@ -66,6 +68,25 @@ const BottomBarChart = (props) => {
                 }
             });
 
+            let series_cnt_left, series_val_left;
+            
+            series_cnt_left = d3.stack().keys(label)(cnt_data).map(d => (d.forEach(v => v.key = d.key), d));;
+            series_val_left = d3.stack().keys(label)(val_data).map(d => (d.forEach(v => v.key = d.key), d));;
+
+            
+            
+            const getTitle = (label, category) => {
+                if (category == "all"){
+                    let c = series_cnt_left[label][0];
+                    return (`Label : ${label}, Count : ${parseInt(c[1]-c[0])}`); // Label 1, Count : 10, Val : 
+                }
+                else {
+                    let c = series_cnt_left[label][`${(category === "false"? 1 : 2)}`];
+                    let v = series_val_left[label][`${(category === "false"? 0 : 1)}`];
+                    return (`Label: ${label}, Count: ${parseInt(c[1] - c[0])}, Value : ${(v[1] - v[0]).toFixed(3)}`)
+                }
+
+            };
             
             x = d3.scaleLinear()
                 .range([margin.left, (width - margin.right) / 2]);
@@ -77,16 +98,12 @@ const BottomBarChart = (props) => {
 
                 
             if (isCountLeft) {
-                series = d3.stack()
-                .keys(label)(cnt_data)
-                .map(d => (d.forEach(v => v.key = d.key), d));
+                series = series_cnt_left;
                 x.domain([0,points.length]);
                 y.domain(["missing", "false", "all"])
             }
             else {
-                series = d3.stack()
-                .keys(label)(val_data)
-                .map(d => (d.forEach(v => v.key = d.key), d));
+                series = series_val_left;
                 x.domain([0, d3.max(val_data.map(d => Object.values(d).reduce((a, b) => a+(isNaN(parseFloat(b))?0:parseFloat(b)))))]);
                 y.domain(["missing", "false"])
             }
@@ -103,8 +120,11 @@ const BottomBarChart = (props) => {
 
             
         // svg.attr("viewBox", [0, 0, width, height]);
-
-
+// d : arr
+// 0: 122
+// 1: 137
+// data: {0: 31, 1: 0, 2: 16, 3: 40, 4: 0, 5: 27, 6: 8, 7: 0, 8: 15, 9: 0, name: "all"}
+// key: 8
             svgLeft.append("g")
                 .selectAll("g")
                 .data(series)
@@ -119,12 +139,14 @@ const BottomBarChart = (props) => {
                 .attr("height", y.bandwidth())
                 .on("mouseover", function() { tooltipLeft.style("display", null); })
                 .on("mouseout", function() { tooltipLeft.style("display", "none"); })
-                .on("mousemove", function(d) {
-                    tooltipLeft.attr("transform", `translate(${d.offsetX - 30}, ${d.offsetY - 25} )`);
-                    tooltipLeft.select("text").text(d.target.getAttribute("text"));
+                .on("mousemove",function(e, d) {
+                    tooltipLeft.select("rect").attr("width",`${d.data.name === "all" ? 130 : tooltipMaxLen}`)
+                    tooltipLeft.attr("transform", 
+                        `translate(${d3.min([e.offsetX - 30, (width - margin.right ) / 2 - (d.data.name === "all" ? 130 : tooltipMaxLen)])},
+                        ${e.offsetY - 25} )`);
+                    tooltipLeft.select("text").text(getTitle(d.key, d.data.name));
                 })
-                .attr("text", d => `${d.key}: ${isCountLeft? parseInt((d[1] - d[0])) : (d[1] - d[0]).toFixed(3)}`)
-
+                
                 svgLeft.append("g")
                     .attr("class", "x-axis")
                     .call(xAxis);
@@ -133,12 +155,11 @@ const BottomBarChart = (props) => {
                     .attr("class", "y-axis")
                     .call(yAxis);
 
-                    tooltipLeft = svgLeft.append("g")
+                tooltipLeft = svgLeft.append("g")
                 .attr("class", "tooltip")
                 .style("display", "none");
                       
                 tooltipLeft.append("rect")
-                    .attr("width", 60)
                     .attr("height", 20)
                     .attr("fill", "white")
                     .style("opacity", 0.5);
@@ -151,11 +172,12 @@ const BottomBarChart = (props) => {
                     .attr("font-weight", "bold");
 
 
-                    missingPoints = Object.keys(missingPoints);
-                    cnt_data = [{name:"false", ...res, }, {name:"missing", ...res}];
-                    val_data = [{name:"false", ...res, }, {name:"missing", ...res}];
+                missingPoints = Object.keys(missingPoints);
+                cnt_data = [{name:"false", ...res, }, {name:"missing", ...res}];
+                val_data = [{name:"false", ...res, }, {name:"missing", ...res}];
 
-                    missingPoints.forEach(n => {
+                
+    missingPoints.forEach(n => {
                         if (data[n].missing > 0){ // missing
                             val_data[1][data[n].label] += data[n].missing;
                             cnt_data[1][data[n].label] += 1;
@@ -167,11 +189,22 @@ const BottomBarChart = (props) => {
                     });
 
 
-                    x = d3.scaleLinear()
+            let seriesc_cnt_right, series_val_right;
+                    
+            seriesc_cnt_right = d3.stack().keys(label)(cnt_data).map(d => (d.forEach(v => v.key = d.key), d));;
+            series_val_right = d3.stack().keys(label)(val_data).map(d => (d.forEach(v => v.key = d.key), d));;
+
+            
+            x = d3.scaleLinear()
                 .range([margin.left, (width - margin.right) / 2]);
-                
-            console.log(missingPoints.length, points.length, cnt_data)
-                
+            
+            const getTitleRight = (label, category) => {
+                let c = seriesc_cnt_right[label][`${(category === "false"? 0 : 1)}`];
+                let v = series_val_right[label][`${(category === "false"? 0 : 1)}`];
+                return (`Label: ${label}, Count: ${parseInt(c[1] - c[0])}, Value : ${(v[1] - v[0]).toFixed(3)}`)
+
+            }
+
             if (isCountRight) {
                 series = d3.stack()
                 .keys(label)(cnt_data)
@@ -218,11 +251,10 @@ const BottomBarChart = (props) => {
                 .attr("height", y.bandwidth())
                 .on("mouseover", function() { tooltipRight.style("display", null); })
                 .on("mouseout", function() { tooltipRight.style("display", "none"); })
-                .on("mousemove", function(d) {
-                    tooltipRight.attr("transform", `translate(${d.offsetX - 30}, ${d.offsetY - 25} )`);
-                    tooltipRight.select("text").text(d.target.getAttribute("text"));
+                .on("mousemove", function(e, d) {
+                    tooltipRight.attr("transform", `translate(${d3.min([e.offsetX - 30, (width - margin.right ) / 2 - tooltipMaxLen])}, ${e.offsetY - 25} )`);
+                    tooltipRight.select("text").text(getTitleRight(d.key, d.data.name));
                 })
-                .attr("text", d => `${d.key}: ${isCountRight? parseInt((d[1] - d[0])) : (d[1] - d[0]).toFixed(3)}`)
 
                 svgRight.append("g")
                     .attr("class", "x-axis")
@@ -237,7 +269,7 @@ const BottomBarChart = (props) => {
                 .style("display", "none");
                       
                 tooltipRight.append("rect")
-                    .attr("width", 60)
+                    .attr("width", tooltipMaxLen)
                     .attr("height", 20)
                     .attr("fill", "white")
                     .style("opacity", 0.5);
