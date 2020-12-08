@@ -121,7 +121,8 @@ const BarChart = (props) => {
     [setState]
   );
 
-  const colorScale = d3.scaleOrdinal(d3.schemeSpectral[label_list.length]);
+  // const colorScale = d3.scaleOrdinal(d3.schemeSpectral[label_list.length]);
+  const colorScale = props.colorScale;
   function renderSVG() {
     let txt = "<defs>";
     for (let i=0; i<label_list.length; i++){

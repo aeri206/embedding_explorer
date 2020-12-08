@@ -665,6 +665,7 @@ const ExplorerNew = (props) => {
                 <BarChart 
                     method={props.method}
                     dataset={props.dataset}
+                    colorScale={colorScale}
                     option={"count"}
                     threshold={0.4}
                 />
