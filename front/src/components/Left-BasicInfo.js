@@ -2,12 +2,16 @@ import React, { useState } from 'react';
 import parse from 'html-react-parser';
 
 const BasicInfoTab = (props) => {
+  
+  const df_name = props.dataset;
+  const emb_name = props.method;
+  const emb_params = props.emb_params;
+  let label_data;
 
-  const df_name = useState('MNIST-TEST')[0];
-  const n_label = useState('not-applied')[0];
-  const emb_name = useState('PCA')[0];
-  const emb_params = useState({'param1': 111, 'param2': 222, 'param3': 222, 'param4': 222, 'param5': 222})[0];
-
+  if (props.isLabel){
+    let pointsData = require("../json/" + props.dataset + "_" + props.method + "_points.json");
+    label_data = Array.from(new Set(pointsData.map((d) => d.label))).sort((a,b)=> a - b);
+  }else{ label_data = 'not-exist'; }
   const printParam = (obj) => {
     let txt = '';
     for (let x in obj){
@@ -30,10 +34,17 @@ const BasicInfoTab = (props) => {
        <div className="tab-title">
        Basic Information
        </div>
-      <div className="keyword"><b>DATASET</b>{spacing(5)}{df_name}</div>
-      <div className="data">label{spacing(2)}:{spacing(2)}{n_label}</div>
-      <div className="keyword"><b>EMBEDDING</b>{spacing(5)}{emb_name}</div>
-      <div className="data">{printParam(emb_params)}</div>
+      <div className="keyword">
+        <b>DATASET</b>{spacing(5)}
+        <div style={{height:'20px',width:'220px',overflow:'auto'}}>{df_name.toUpperCase()}</div></div>
+      <div className="data" style={{height:'30px',width:'310px',overflow:'auto'}}>
+        label{spacing(2)}:{spacing(2)}{JSON.stringify(label_data)}</div>
+      
+      <div className="keyword">
+        <b>EMBEDDING</b>{spacing(5)}
+        <div style={{height:'20px',width:'180px',overflow:'auto'}}>{emb_name.toUpperCase()}</div></div>
+      <div className="data" style={{height:'80px',width:'310px',overflow:'auto'}}>
+        {printParam(emb_params)}</div>
     </div>
   );
 

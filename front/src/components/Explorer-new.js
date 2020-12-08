@@ -635,7 +635,7 @@ const ExplorerNew = (props) => {
                     <svg id={`scatterplot_${props.dataset}_${props.method}`}></svg>
                 </div>
                 <div id="detailview">
-                    <BottomBarChart data={pointsData} update={update} points={pointsIn} label={label_data}/>
+                    <BottomBarChart colorScale={colorScale} data={pointsData} update={update} points={pointsIn} label={label_data}/>
                 </div>
             </div>
             <div id="content-right">
@@ -654,16 +654,18 @@ const ExplorerNew = (props) => {
                     missingPoints={missingPointsIn}
                     setMainMethod={props.setMainMethod}
                 />
+
                 <ShepardDiagram
                     method={props.method}
                     dataset={props.dataset} 
                 />
-
+                <div style={{textAlign:'center', height:'25px', fontSize:'16px', paddingTop:'10px', fontWeight:'600'}}>
+                    Label Distribution</div>
                 <BarChart 
                     method={props.method}
                     dataset={props.dataset}
                     option={"count"}
-                    threshold={0.5}
+                    threshold={0.4}
                 />
 
             </div>
