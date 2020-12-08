@@ -225,8 +225,8 @@ const ExplorerNew = (props) => {
 
     const drag = (e) => { // 매우느림
 
-        const dragX = (e.subject.x - e.x) * 0.05;
-      const dragY = (e.subject.y - e.y) * 0.05;
+        const dragX = (e.subject.x - e.x) * 0.1;
+      const dragY = (e.subject.y - e.y) * 0.1;
       const [scale, transX, transY] = getTransformValue();
       const moveX = d3.max([d3.min([transX - dragX, margin.hor * scale]),(30 / scale) - (scale - 1.0) * width]);
       const moveY = d3.max([d3.min([transY - dragY, margin.ver * scale]),(30 / scale) - (scale - 1.0) * height]);
@@ -245,8 +245,6 @@ const ExplorerNew = (props) => {
     useEffect(() => {
 
 
-        // d3.select("")
-        console.log(d3.select(`#scatterplot_${props.dataset}_${props.method}`))
         d3.select(`#scatterplot_${props.dataset}_${props.method}`).selectAll("g").remove();
         d3.select(`#minimap_${props.dataset}_${props.method}`).selectAll("g").remove();
         setUpdate(() => false);
@@ -255,7 +253,6 @@ const ExplorerNew = (props) => {
         //     svgs.selectAll("g").remove();
         // }
 
-        console.log('useEffect1')
 
         drawPlot(1.0, "scatterplot");
         drawPlot(ratio, "minimap");
@@ -659,7 +656,7 @@ const ExplorerNew = (props) => {
                     method={props.method}
                     dataset={props.dataset} 
                 />
-                <div style={{textAlign:'center', height:'25px', fontSize:'16px', paddingTop:'15px', fontWeight:'600'}}>
+                <div className="section-title">
                     Label Distribution</div>
                 <BarChart 
                     method={props.method}
