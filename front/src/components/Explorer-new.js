@@ -644,7 +644,12 @@ const ExplorerNew = (props) => {
                     dataset={props.dataset} 
                 />
 
-                <BarChart label_list={label_data}/>
+                <BarChart 
+                    method={props.method}
+                    dataset={props.dataset}
+                    option={"count"}
+                    threshold={0.5}
+                />
 
             </div>
             
