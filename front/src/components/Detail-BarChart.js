@@ -6,7 +6,7 @@ import parse from 'html-react-parser';
 
 const BarChart = (props) => {
   let jsonFileName = props.dataset + "_" + props.method;
-  const [option, setOption] = useState('count');
+  const [option, setOption] = useState(props.option);
   const threshold = props.threshold;
 
   function countLabel(df, d) {
@@ -136,9 +136,9 @@ const BarChart = (props) => {
 
   return (
     <div name="labelplot" className='BarChart'>
-      <select id="labelplot-option" onChange={handleChange}>
-        <option selected value="count">count</option>
-        <option value="value">value</option>
+      <select id="selection-info-view" onChange={handleChange} style={{marginLeft:"420px"}}>
+        <option value="count">Count</option>
+        <option value="value">Value</option>
       </select>
       <Chart data={data} series={series} axes={axes} tooltip 
         getSeriesStyle={getSeriesStyle}

@@ -179,7 +179,7 @@ input[type="reset"]:hover, input[type="submit"]:hover{
 }
 
 .BarChart{
-  width: 500px; height: 210px;
+  width: 500px; height: 190px;
   background-color: white;
   margin:0 15px;
   font-size: 0px;
@@ -192,14 +192,14 @@ text.tickLabel{
 
 div.section-title {
   text-align:center;
-  height:25px;
+  height:20px;
   font-size: 16px;
   padding-top: 15px;
   font-weight: 600;
 }
 
 #selection-info-view {
-  height:30px;
+  height:20px;
   width:70px;
   padding-left:0.5em;
 }
