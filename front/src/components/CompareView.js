@@ -13,8 +13,8 @@ const CompareView = (props) => {
     const compareHeight = 200;
 
     useEffect(() => {
-        console.log(props.points)
-        console.log(methods);
+        // console.log(props.points);
+        // console.log(methods);
     }, [props.update])
 
 

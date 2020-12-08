@@ -639,12 +639,19 @@ const ExplorerNew = (props) => {
                     colorScale={colorScale}
                     missingPoints={missingPointsIn}
                 />
+
                 <ShepardDiagram
                     method={props.method}
                     dataset={props.dataset} 
                 />
-
-                <BarChart label_list={label_data}/>
+                <div style={{textAlign:'center', height:'25px', fontSize:'16px', paddingTop:'10px', fontWeight:'600'}}>
+                    Label Distribution</div>
+                <BarChart 
+                    method={props.method}
+                    dataset={props.dataset}
+                    option={"count"}
+                    threshold={0.4}
+                />
 
             </div>
             
