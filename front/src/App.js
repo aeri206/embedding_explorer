@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import BasicInfoTab from './components/Left-BasicInfo';
 import ControlTab from './components/Left-Control';
 import ExplorerNew from './components/Explorer-new';
+import RepositoryTab from './components/Right-Repository';
 
 function App() {
 
@@ -44,7 +45,10 @@ function App() {
             stroke={3}
             setMainMethod = {setMainMethod}
           />
-      </div>
+        </div>
+        <div id="right-bar">
+          <RepositoryTab/>
+        </div>
       <footer/>
     </div>
   );
