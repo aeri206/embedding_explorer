@@ -1,13 +1,12 @@
-import React from 'react';
+import React, { useEffect, useState }  from 'react';
 import { Chart } from "react-charts";
 import parse from 'html-react-parser';
-import * as d3 from 'd3';
+// import * as d3 from 'd3';
 
 
 const BarChart = (props) => {
   let jsonFileName = props.dataset + "_" + props.method;
-  const option = props.option;
-  // const option = 'value';
+  const [option, setOption] = useState('count');
   const threshold = props.threshold;
 
   function countLabel(df, d) {
@@ -59,9 +58,9 @@ const BarChart = (props) => {
     });
   }
 
-
-
-
+  function handleChange(event) {
+    setOption(event.target.value);
+  }
 
 
   const [{ activeSeriesIndex, activeDatumIndex }, setState] = React.useState({
@@ -122,7 +121,6 @@ const BarChart = (props) => {
     [setState]
   );
 
-  // const colorScale = d3.scaleOrdinal(d3.schemeSpectral[label_list.length]);
   const colorScale = props.colorScale;
   function renderSVG() {
     let txt = "<defs>";
@@ -138,6 +136,10 @@ const BarChart = (props) => {
 
   return (
     <div name="labelplot" className='BarChart'>
+      <select id="labelplot-option" onChange={handleChange}>
+        <option selected value="count">count</option>
+        <option value="value">value</option>
+      </select>
       <Chart data={data} series={series} axes={axes} tooltip 
         getSeriesStyle={getSeriesStyle}
         getDatumStyle={getDatumStyle}
