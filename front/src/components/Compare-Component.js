@@ -13,7 +13,7 @@ const CompareViewComponent = (props) => {
 
     let width = props.width
     let height = props.height
-    const margin = { hor: 20, ver: 20 };
+    const margin = { hor: 20, ver: 15 };
 
     const [minX, maxX] = d3.extent(pointsData, d => d.coor[0]);
     const [minY, maxY] = d3.extent(pointsData, d => d.coor[1]);
@@ -95,7 +95,7 @@ const CompareViewComponent = (props) => {
                   .attr("id", "select_" + props.method);
                 selection.append("rect")
                   .attr("id", "rect_" + props.method)
-                  .attr("transform", "translate(" + (10) + "," + (props.height + 20) + ")")
+                  .attr("transform", "translate(" + (10) + "," + (props.height + 5) + ")")
                   .attr("width", 160)
                   .attr("height", 30)
                   .attr("rx", 7)
@@ -131,7 +131,7 @@ const CompareViewComponent = (props) => {
                          .attr("id", "text_" + props.method)
                          .attr("font-size", 13)
                          .attr("font-weight", 300)
-                         .attr("transform", "translate(" + (15) + "," + (props.height + margin.ver * 2) + ")")
+                         .attr("transform", "translate(" + (17) + "," + (props.height + 25) + ")")
                          .text("Set as Main Projection!!")
                          .style("user-select", "none")
 
@@ -197,9 +197,8 @@ const CompareViewComponent = (props) => {
 
 
     return (
-        <div id={props.method + "_compare_div"} style={{height: "265px"}}>
+        <div id={props.method + "_compare_div"} style={{height: "250px"}}>
             <svg id={props.method + "_compare"}>
-
             </svg>
         </div>
     )

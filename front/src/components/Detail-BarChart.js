@@ -6,7 +6,8 @@ import * as d3 from 'd3';
 
 const BarChart = (props) => {
   let jsonFileName = props.dataset + "_" + props.method;
-  const option = props.option
+  const option = props.option;
+  // const option = 'value';
   const threshold = props.threshold;
 
   function countLabel(df, d) {
@@ -31,8 +32,8 @@ const BarChart = (props) => {
   let data;
   let point_data = require("../json/" + jsonFileName + "_points.json");
   let label_data = point_data.map((d) => d.label.toString());
-  let trust_data = point_data.map((d) => d.trust.toString());
-  let cont_data = point_data.map((d) => d.cont.toString());
+  let false_data = point_data.map((d) => d.false.toString());
+  let missing_data = point_data.map((d) => d.missing.toString());
   const label_list = Array.from(new Set(label_data)).sort((a,b)=> a - b);
 
   if (option==='count'){
@@ -41,8 +42,8 @@ const BarChart = (props) => {
         label: d,
         data: [
           {x:"All", y: countLabel(label_data, d)}, 
-          {x:"Missing", y: countLabel(label_data.filter(e => cont_data[e] > threshold), d)}, 
-          {x:"False", y: countLabel(label_data.filter(e => trust_data[e] > threshold), d)},
+          {x:"Missing", y: countLabel(label_data.filter((d,i) => missing_data[i] > threshold), d)}, 
+          {x:"False", y: countLabel(label_data.filter((d,i) => false_data[i] > threshold), d)},
         ]};
     });
   }
@@ -52,8 +53,8 @@ const BarChart = (props) => {
         label: d,
         data: [
           {x: "All", y: 0.0}, 
-          {x: "Missing", y: sumLabel(label_data, cont_data, d)}, 
-          {x: "False", y: sumLabel(label_data, trust_data, d)},
+          {x: "Missing", y: sumLabel(label_data, missing_data, d)}, 
+          {x: "False", y: sumLabel(label_data, false_data, d)},
         ]};
     });
   }

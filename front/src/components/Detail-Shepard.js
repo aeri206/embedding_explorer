@@ -11,7 +11,7 @@ const ShepardDiagram = (props) => {
   // let dist_emb = Object.values(distance_data.dist_emb);
 
 
-  const N = 20; const plotHeight= 230;
+  const N = 20; const plotHeight= 190;
   const xLabels = useState(new Array(N).fill(0).map((_, i) => `${i}`))[0];
   const yLabels = useState(new Array(N).fill(''))[0];
   const xLabelsVisibility = new Array(N).fill(false);
@@ -69,8 +69,6 @@ const ShepardDiagram = (props) => {
   }, [])
 
   const shepardContainerStyle = {
-    margin: 'auto',
-    height:'280px'
 
   };
 
@@ -83,7 +81,7 @@ const ShepardDiagram = (props) => {
                     Shepard Diagram</div>
       
       <svg id={"shepard-axis"} style={{position: 'absolute'}} 
-        transform={"translate(-30, -30)"} height={280} width={280}> 
+        transform={"translate(-30, -30)"} height={plotHeight+50} width={plotHeight+40}> 
       </svg>
       <div>
         <HeatMap name="plot"
