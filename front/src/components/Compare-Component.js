@@ -65,6 +65,29 @@ const CompareViewComponent = (props) => {
                   .attr("font-weight", 600)
                   .attr("y", 30)
                   .attr("x", 10)
+
+        compareSvg
+            .on("mouseover", function() {
+                d3.select(this).append("rect")
+                    .attr("fill", "none")
+                    .attr("stroke", "black")
+                    .attr("stroke-width", 1)
+                    .attr("width", props.width + margin.hor * 2)
+                    .attr("height", props.width + margin.ver * 3)
+                
+                console.log(d3.select("#" + props.method + "compare_div"))
+                d3.select("#" + props.method + "_compare_div")
+                  .append("button")
+                  .text("Set as Main Projection!!")
+                  .style("display", "block")
+            })
+            .on("mouseout", function() {
+                d3.select(this).select("rect").remove();
+
+                d3.select("#" + props.method + "_compare_div")
+                //   .select("button").remove();
+
+            })
     }, [])
 
     useEffect(() => {
@@ -108,7 +131,7 @@ const CompareViewComponent = (props) => {
 
 
     return (
-        <div>
+        <div id={props.method + "_compare_div"}>
             <svg id={props.method + "_compare"}>
 
             </svg>
