@@ -640,17 +640,17 @@ const ExplorerNew = (props) => {
                     missingPoints={missingPointsIn}
                 />
 
-                <div style={{textAlign:'center', height:'25px', fontSize:'16px'}}>Shepard Diagram</div>
                 <ShepardDiagram
                     method={props.method}
                     dataset={props.dataset} 
                 />
-                <div style={{textAlign:'center', height:'25px', fontSize:'16px', paddingTop:'10px'}}>Label Distribution</div>
+                <div style={{textAlign:'center', height:'25px', fontSize:'16px', paddingTop:'10px', fontWeight:'600'}}>
+                    Label Distribution</div>
                 <BarChart 
                     method={props.method}
                     dataset={props.dataset}
                     option={"count"}
-                    threshold={0.5}
+                    threshold={0.4}
                 />
 
             </div>

@@ -1,5 +1,7 @@
 import React from 'react';
 import { Chart } from "react-charts";
+import parse from 'html-react-parser';
+import * as d3 from 'd3';
 
 
 const BarChart = (props) => {
@@ -57,32 +59,98 @@ const BarChart = (props) => {
   }
 
 
+
+
+
+
+  const [{ activeSeriesIndex, activeDatumIndex }, setState] = React.useState({
+    activeSeriesIndex: -1,
+    activeDatumIndex: -1
+  });
+
   const series = React.useMemo(
     () => ({
       type: "bar"
     }),
-    []
+    ["bar"]
   );
 
   const axes = React.useMemo(
     () => [
       { primary: true, type: "ordinal", position: "bottom"},
-      { position: "left", type: "linear", stacked: false, show: false, hardMin:0}
+      { type: "linear", position: "left", stacked: false, show: false, hardMin:0}
     ],
     []
   );
 
+  const getSeriesStyle = React.useCallback(
+    series => ({
+      color: `url(#${series.index % label_list.length})`,
+      opacity:
+        activeSeriesIndex > -1
+          ? series.index === activeSeriesIndex
+            ? 1
+            : 0.3
+          : 1
+    }),
+    [activeSeriesIndex]
+  );
 
+  const getDatumStyle = React.useCallback(
+    datum => ({
+      r:
+        activeDatumIndex === datum.index && activeSeriesIndex === datum.seriesIndex
+          ? 7
+          : activeDatumIndex === datum.index
+          ? 5
+          : datum.series.index === activeSeriesIndex
+          ? 3
+          : datum.otherHovered
+          ? 2
+          : 2
+    }),
+    [activeDatumIndex, activeSeriesIndex]
+  );
+
+  const onFocus = React.useCallback(
+    focused =>
+      setState({
+        activeSeriesIndex: focused ? focused.series.id : -1,
+        activeDatumIndex: focused ? focused.index : -1
+      }),
+    [setState]
+  );
+
+  const colorScale = d3.scaleOrdinal(d3.schemeSpectral[label_list.length]);
+  function renderSVG() {
+    let txt = "<defs>";
+    for (let i=0; i<label_list.length; i++){
+      txt += `<linearGradient id="${label_list[i]}">`
+            + `<stop stop-color="${colorScale(i)}"/>`
+            + "</linearGradient>";
+    }
+    txt += "</defs>"
+    return parse(txt);
+  }
 
 
   return (
     <div name="labelplot" className='BarChart'>
-      <Chart data={data} series={series} axes={axes} tooltip />
+      <Chart data={data} series={series} axes={axes} tooltip 
+        getSeriesStyle={getSeriesStyle}
+        getDatumStyle={getDatumStyle}
+        onFocus={onFocus}
+        setState={setState}
+        activeDatumIndex={activeDatumIndex}
+        activeSeriesIndex={activeSeriesIndex}
+        renderSVG = {renderSVG}
+      />
     </div>
   );
 
 
 };
+
 
 
 export default BarChart;

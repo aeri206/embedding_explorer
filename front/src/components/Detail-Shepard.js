@@ -11,7 +11,7 @@ const ShepardDiagram = (props) => {
   // let dist_emb = Object.values(distance_data.dist_emb);
 
 
-  const N = 20; const plotHeight= 250;
+  const N = 20; const plotHeight= 230;
   const xLabels = useState(new Array(N).fill(0).map((_, i) => `${i}`))[0];
   const yLabels = useState(new Array(N).fill(''))[0];
   const xLabelsVisibility = new Array(N).fill(false);
@@ -38,7 +38,7 @@ const ShepardDiagram = (props) => {
   }
   // console.log(shepardMatrix(dist_orig, dist_emb))
 
-  const onClick = (x, y) => alert(`Clicked ${x}, ${y}.`)
+  // const onClick = (x, y) => alert(`Clicked ${x}, ${y}.`)
   
   const cellStyle = (background, value, min, max, data, x, y) => ({
     background: `rgb(25, 25, 112, ${1 - (max - value) / (max - min)})`,
@@ -54,33 +54,23 @@ const ShepardDiagram = (props) => {
 
 
     let shepardAxisSvg = d3.select("#shepard-axis")
-    let xAxis = d3.axisBottom(d3.scaleLinear().domain([0, 1]).range([0, 250]));
+    let xAxis = d3.axisBottom(d3.scaleLinear().domain([0, 1]).range([0, plotHeight]));
 
     shepardAxisSvg.append("g") 
-                  .attr("transform", "translate(20, 295)")
+                  .attr("transform", `translate(30, ${plotHeight+30})`)
                   .call(xAxis)
     
-    let yAxis = d3.axisLeft(d3.scaleLinear().domain([0, 1]).range([250, 0]));
+    let yAxis = d3.axisLeft(d3.scaleLinear().domain([0, 1]).range([plotHeight, 0]));
 
 
     shepardAxisSvg.append("g")
-                  .attr("transform", "translate(15,40)")
+                  .attr("transform", "translate(30,30)")
                   .call(yAxis)
-
-    shepardAxisSvg.append('text')
-                  .text('Shepard Diagram')
-                  .attr("font-size", 15)
-                  .attr("font-weight", 600)
-                  .attr("y", 30)
-
-
-
-
   }, [])
 
   const shepardContainerStyle = {
     margin: 'auto',
-    height:'290px'
+    height:'280px'
 
   };
 
@@ -89,23 +79,25 @@ const ShepardDiagram = (props) => {
 
   return (
     <div name="heatmap" className='Shepard' style={shepardContainerStyle}>
-      <div>Shepard diagram</div>
-      <svg id={"shepard-axis"} style={{position: 'absolute'}} transform={"translate(-20, -20)"} height={350} width={500}> 
-
+      <div style={{textAlign:'center', height:'25px', fontSize:'16px', fontWeight:'600'}}>
+                    Shepard Diagram</div>
+      
+      <svg id={"shepard-axis"} style={{position: 'absolute'}} 
+        transform={"translate(-30, -30)"} height={280} width={280}> 
       </svg>
-      <div style={{marginTop: "20px"}}>
-      <HeatMap name="plot"
-        // background={"#329fff"}
-        xLabels={xLabels}
-        yLabels={yLabels}
-        xLabelsLocation={"bottom"} xLabelsVisibility={xLabelsVisibility}
-        xLabelWidth={0} yLabelWidth={0}
-        data={matrix}
-        // onClick={onClick}
-        squares={true}
-        height={plotHeight/N}
-        cellStyle={cellStyle}
-        cellRender={cellRender}
+      <div>
+        <HeatMap name="plot"
+          // background={"#329fff"}
+          xLabels={xLabels}
+          yLabels={yLabels}
+          xLabelsLocation={"bottom"} xLabelsVisibility={xLabelsVisibility}
+          xLabelWidth={0} yLabelWidth={0}
+          data={matrix}
+          // onClick={onClick}
+          squares={true}
+          height={plotHeight/N}
+          cellStyle={cellStyle}
+          cellRender={cellRender}
       />
       </div>
       
