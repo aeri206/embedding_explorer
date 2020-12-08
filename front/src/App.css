@@ -140,9 +140,9 @@
   background-color: var(--tab-color);
 }
 .Shepard {
-  width: 510px; height: 225px;
+  width: 230px; height: 230px;
   background-color: white;
-  padding: 10px 10px 10px 10px;
+  padding: 10px 20px 0px 30px;
   font-size: 0px;
 }
 
@@ -155,6 +155,6 @@
 }
 
 text.tickLabel{
-  font-size: 15px !important;
-  transform: translate(68px, 15px) !important;
+  font-size: 14px !important;
+  transform: translate(68px, 14px) !important;
 }
