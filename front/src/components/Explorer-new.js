@@ -639,11 +639,13 @@ const ExplorerNew = (props) => {
                     colorScale={colorScale}
                     missingPoints={missingPointsIn}
                 />
+
+                <div style={{textAlign:'center', height:'25px', fontSize:'16px'}}>Shepard Diagram</div>
                 <ShepardDiagram
                     method={props.method}
                     dataset={props.dataset} 
                 />
-
+                <div style={{textAlign:'center', height:'25px', fontSize:'16px', paddingTop:'10px'}}>Label Distribution</div>
                 <BarChart 
                     method={props.method}
                     dataset={props.dataset}

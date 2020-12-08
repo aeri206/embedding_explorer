@@ -6,7 +6,7 @@ const CompareViewComponent = (props) => {
 
     let jsonFileName = props.dataset + "_" + props.method;
     let pointsData = require("../json/" + jsonFileName + "_points.json");
-    console.log(pointsData);
+    // console.log(pointsData);
     const colorScale = props.colorScale
 
     const radius = 1;

@@ -66,7 +66,7 @@ const BarChart = (props) => {
 
   const axes = React.useMemo(
     () => [
-      { primary: true, type: "ordinal", position: "bottom" },
+      { primary: true, type: "ordinal", position: "bottom"},
       { position: "left", type: "linear", stacked: false, show: false}
     ],
     []

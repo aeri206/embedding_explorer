@@ -29,10 +29,6 @@ function App() {
             radius={2.5}
             stroke={3}
           />
-        {/* <div id="detail-info">
-          <div style={{textAlign:'center', height:'25px', fontSize:'16px', width:'250px'}}>Shepard Diagram</div> 
-          <div style={{textAlign:'center', height:'25px', fontSize:'16px', paddingTop:'10px'}}>Label Distribution</div>
-        </div> */}
       </div>
       <footer/>
     </div>
