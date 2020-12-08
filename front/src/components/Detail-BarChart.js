@@ -141,7 +141,8 @@ const BarChart = (props) => {
     <div name="labelplot" className='BarChart'>
       <div style={{display:"flex"}}>
         <input type="range" min="0" max="100" value={threshold} onChange={handleThreshold} style={{width:"80px"}}/>
-        <select id="selection-info-view" onChange={handleOption} style={{marginLeft:"330px"}}>
+        <div id="th-label">{(threshold / 100).toFixed(2)}</div>
+        <select className="selection-info-view" onChange={handleOption} style={{marginLeft:"230px"}}>
         {/* <select id="selection-info-view" onChange={handleOption} style={{marginLeft:"420px"}}> */}
           <option value="count">Count</option>
           <option value="value">Value</option>
