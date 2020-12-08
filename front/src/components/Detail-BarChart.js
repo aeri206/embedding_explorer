@@ -6,8 +6,8 @@ import parse from 'html-react-parser';
 
 const BarChart = (props) => {
   let jsonFileName = props.dataset + "_" + props.method;
-  const [option, setOption] = useState('count');
-  const threshold = props.threshold;
+  const [option, setOption] = useState(props.option);
+  const [threshold, setThreshold] = useState(props.threshold);
 
   function countLabel(df, d) {
     let count = 0;
@@ -22,7 +22,7 @@ const BarChart = (props) => {
       }
     }else{
       for (let i in df_label){ 
-        if (df_label[i] === target_label & df_value[i] > threshold) sum += parseFloat(df_value[i]);
+        if (df_label[i] === target_label & df_value[i] > (threshold/100)) sum += parseFloat(df_value[i]);
       }
     }
     return sum;
@@ -41,8 +41,8 @@ const BarChart = (props) => {
         label: d,
         data: [
           {x:"All", y: countLabel(label_data, d)}, 
-          {x:"Missing", y: countLabel(label_data.filter((d,i) => missing_data[i] > threshold), d)}, 
-          {x:"False", y: countLabel(label_data.filter((d,i) => false_data[i] > threshold), d)},
+          {x:"Missing", y: countLabel(label_data.filter((d,i) => missing_data[i] > (threshold/100)), d)}, 
+          {x:"False", y: countLabel(label_data.filter((d,i) => false_data[i] > (threshold/100)), d)},
         ]};
     });
   }
@@ -58,8 +58,11 @@ const BarChart = (props) => {
     });
   }
 
-  function handleChange(event) {
+  function handleOption(event) {
     setOption(event.target.value);
+  }
+  function handleThreshold(event) {
+    setThreshold(event.target.value);
   }
 
 
@@ -136,10 +139,14 @@ const BarChart = (props) => {
 
   return (
     <div name="labelplot" className='BarChart'>
-      <select id="labelplot-option" onChange={handleChange}>
-        <option selected value="count">count</option>
-        <option value="value">value</option>
-      </select>
+      <div style={{display:"flex"}}>
+        <input type="range" min="0" max="100" value={threshold} onChange={handleThreshold} style={{width:"80px"}}/>
+        <select id="selection-info-view" onChange={handleOption} style={{marginLeft:"330px"}}>
+        {/* <select id="selection-info-view" onChange={handleOption} style={{marginLeft:"420px"}}> */}
+          <option value="count">Count</option>
+          <option value="value">Value</option>
+        </select>
+      </div>
       <Chart data={data} series={series} axes={axes} tooltip 
         getSeriesStyle={getSeriesStyle}
         getDatumStyle={getDatumStyle}
