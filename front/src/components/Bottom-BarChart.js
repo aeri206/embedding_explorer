@@ -7,7 +7,7 @@ let xAxis, yAxis, x, y, series, svg, tooltip;
 
 const width = 800;
 const height = 200;
-const margin = {top : 30, left : 50, bottom : 30, right : 30};
+const margin = {top : 30, left : 70, bottom : 30, right : 30};
 
 
 
@@ -15,9 +15,13 @@ const margin = {top : 30, left : 50, bottom : 30, right : 30};
 const BottomBarChart = (props) => {
 
     const [isCount, setCount] = useState(true);
+    const [isVisible, setVisible] = useState(false);
 
-    const onClick = () => {
-        setCount(old => !old);
+    const onChange = e => {
+        if (e.target.value == "count"){
+            setCount(true);
+        }
+        else setCount(false);
     }
     
     const {data, label, points, update, colorScale} = props;
@@ -32,7 +36,9 @@ const BottomBarChart = (props) => {
 
     useEffect(() => {
         svg.selectAll("g").remove();
+        setVisible(false);
         if (update){
+            setVisible(true);
             points.forEach(n => {
                 if (data[n].cont > 0){ // missing
                     val_data[1][data[n].label] += data[n].cont;
@@ -69,9 +75,8 @@ const BottomBarChart = (props) => {
 
 
             xAxis = g => g
-                .attr("transform", `translate(0,${margin.top + (height - margin.top - margin.bottom) * 0.04})`)
-                .call(d3.axisTop(x).ticks(width / 100, "s"))
-                .call(g => g.selectAll(".domain").remove());
+                .attr("transform", `translate(0,${height - margin.top})`)
+                .call(d3.axisBottom(x))
 
             yAxis = g => g
                 .attr("transform", `translate(${margin.left},0)`)
@@ -103,9 +108,11 @@ const BottomBarChart = (props) => {
                 .attr("text", d => `${d.key}: ${(d[1] - d[0]).toFixed(3)}`)
 
                 svg.append("g")
+                    .attr("class", "x-axis")
                     .call(xAxis);
 
                 svg.append("g")
+                    .attr("class", "y-axis")
                     .call(yAxis);
 
             tooltip = svg.append("g")
@@ -129,10 +136,13 @@ const BottomBarChart = (props) => {
     },[props.update, isCount]);
 
 
-
     return (
         <div id="detailview">
-            <button onClick={onClick}>change</button>
+            <div className="section-title">Selected Label Distribution</div>
+            <select id="selection-info-view" onChange={onChange} style={{visibility:`${isVisible? "visible":"hidden"}`, marginLeft: `${width-70}px`    }}>
+                <option value="count">Count</option>
+                <option value="value">Value</option>
+            </select>
             <svg id="bottomBarChart"></svg>
         </div>
     )

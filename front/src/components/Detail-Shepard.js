@@ -77,7 +77,7 @@ const ShepardDiagram = (props) => {
 
   return (
     <div name="heatmap" className='Shepard' style={shepardContainerStyle}>
-      <div style={{textAlign:'center', height:'25px', fontSize:'16px', fontWeight:'600'}}>
+      <div className="section-title">
                     Shepard Diagram</div>
       
       <svg id={"shepard-axis"} style={{position: 'absolute'}} 
