@@ -7,7 +7,7 @@ import ExplorerNew from './components/Explorer-new';
 function App() {
 
   const methods = ["pca" , "isomap", "tsne", "umap"];
-
+  const embedding_parameters = {'param1': 111, 'param2': 222, 'param3': 222, 'param4': 222, 'param5': 222};
   return (
     <div className="App">
       <title>Embeding Explorer</title>
@@ -16,8 +16,18 @@ function App() {
       </div>
       <div id="body">
         <div id="left-bar">
-            <BasicInfoTab/>
-            <ControlTab/>
+            <BasicInfoTab
+              method="pca"
+              dataset="mnist_sampled_10"
+              isLabel={true}
+              emb_params={embedding_parameters}
+            />
+            <ControlTab
+              method="pca"
+              dataset="mnist_sampled_10"
+              isLabel={true}
+              emb_params={embedding_parameters}
+            />
         </div>
           <ExplorerNew
             methods={methods}

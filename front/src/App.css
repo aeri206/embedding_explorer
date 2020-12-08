@@ -61,10 +61,11 @@
   color: var(--accent-color);
 }
 .Tab .keyword{
-  padding-bottom: 5px;
+  padding-bottom: 3px;
+  display: flex;
 }
 .Tab .data{
-  margin: 0 10px 10px 10px;
+  margin-left: 10px;
 }
 .Tab button {
   height: 30px; width: 150px;
