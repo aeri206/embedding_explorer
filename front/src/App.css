@@ -198,13 +198,13 @@ div.section-title {
   font-weight: 600;
 }
 
-#selection-info-view {
+.selection-info-view {
   height:30px;
   width:70px;
   padding-left:0.5em;
 }
 
-#selection-info-view > option {
+.selection-info-view > option {
   padding-left:0.5em;
 }
 
@@ -213,5 +213,9 @@ div.section-title {
 }
 
 .y-axis{
-  font-size:16px;
+  font-size:13px;
+}
+
+div.section-title.bottom {
+  padding-left : 70px;
 }

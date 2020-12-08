@@ -633,7 +633,7 @@ const ExplorerNew = (props) => {
                     <svg id={`scatterplot_${props.dataset}_${props.method}`}></svg>
                 </div>
                 <div id="detailview">
-                    <BottomBarChart colorScale={colorScale} data={pointsData} update={update} points={pointsIn} label={label_data}/>
+                    <BottomBarChart colorScale={colorScale} data={pointsData} update={update} points={pointsIn} label={label_data} missingPoints={missingPointsIn}/>
                 </div>
             </div>
             <div id="content-right">
