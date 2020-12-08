@@ -225,17 +225,17 @@ const ExplorerNew = (props) => {
 
     const drag = (e) => { // 매우느림
 
-        const dragX = (e.subject.x - e.x) * 0.05;
-      const dragY = (e.subject.y - e.y) * 0.05;
+        const dragX = (e.subject.x - e.x) * 0.1;
+      const dragY = (e.subject.y - e.y) * 0.1;
       const [scale, transX, transY] = getTransformValue();
-      const moveX = d3.max([d3.min([transX - dragX, 2 * margin.hor * scale]),(30 / scale) - (scale - 1.0) * width]);
-      const moveY = d3.max([d3.min([transY - dragY, 2 * margin.ver * scale]),(30 / scale) - (scale - 1.0) * height]);
+      const moveX = d3.max([d3.min([transX - dragX, margin.hor * scale]),(30 / scale) - (scale - 1.0) * width]);
+      const moveY = d3.max([d3.min([transY - dragY, margin.ver * scale]),(30 / scale) - (scale - 1.0) * height]);
       gMainView.attr('transform', `translate(${moveX}, ${moveY}) scale(${scale})`);
     
     brush.move(gBrush, [
-        [(2 * margin.hor * scale - moveX) * ratio / scale, (2 * margin.ver * scale - moveY) * ratio / scale],
-        [(2 * margin.hor * scale - moveX) * ratio / scale + (width + 2 * margin.hor) * ratio / scale,
-        (2 * margin.ver * scale - moveY) * ratio / scale + (height + 2 * margin.ver) * ratio / scale],
+        [(margin.hor * scale - moveX) * ratio / scale, (margin.ver * scale - moveY) * ratio / scale],
+        [(margin.hor * scale - moveX) * ratio / scale + (width + 2 * margin.hor) * ratio / scale,
+        (margin.ver * scale - moveY) * ratio / scale + (height + 2 * margin.ver) * ratio / scale],
     ])
 
     }
@@ -550,24 +550,24 @@ const ExplorerNew = (props) => {
                                     gMainView.attr('transform', `translate(${newTransX.toFixed(3)}, ${newTransY.toFixed(3)}) scale(${newScale.toFixed(1)})`);
                                     
                                     brush.move(gBrush, [
-                                        [(2 * margin.hor * newScale - newTransX) * ratio / newScale, (2 * margin.ver * newScale - newTransY) * ratio / newScale],
-                                        [(2 * margin.hor * newScale - newTransX) * ratio / newScale + (width + 2 * margin.hor) * ratio / newScale,
-                                         (2 * margin.ver * newScale - newTransY) * ratio / newScale + (height + 2 * margin.ver) * ratio / newScale],
+                                        [(margin.hor * newScale - newTransX) * ratio / newScale, (margin.ver * newScale - newTransY) * ratio / newScale],
+                                        [(margin.hor * newScale - newTransX) * ratio / newScale + (width + 2 * margin.hor) * ratio / newScale,
+                                         (margin.ver * newScale - newTransY) * ratio / newScale + (height + 2 * margin.ver) * ratio / newScale],
                                     ]);
                                 }
                             }
                             else if (scale > 1.0){ // ZOOM OUT
                                     newScale = parseFloat(scale) - parseFloat(0.1);
-                                    
                                     newTransX = transX + 0.1 * (offsetX - transX) / scale;
                                     newTransY = transY + 0.1 * (offsetY - transY) / scale;
                                     const moveX = d3.max([d3.min([newTransX, margin.hor * newScale]),(30 / newScale) - (newScale - 1.0) * width]);
                                     const moveY = d3.max([d3.min([newTransY, margin.ver * newScale]),(30 / newScale) - (newScale - 1.0) * height]);
                                     gMainView.attr('transform', `translate(${moveX.toFixed(3)}, ${moveY.toFixed(3)}) scale(${newScale.toFixed(1)})`);
+                
                                     brush.move(gBrush, [
-                                        [(2 * margin.hor * newScale - moveX) * ratio / newScale, (2 * margin.ver * newScale - moveY) * ratio / newScale],
-                                        [(2 * margin.hor * newScale - moveX) * ratio / newScale + (width + 2 * margin.hor) * ratio / newScale,
-                                         (2 * margin.ver * newScale - moveY) * ratio / newScale + (height + 2 * margin.ver) * ratio / newScale],
+                                        [(margin.hor * newScale - moveX) * ratio / newScale, (margin.ver * newScale - moveY) * ratio / newScale],
+                                        [(margin.hor * newScale - moveX) * ratio / newScale + (width + 2 * margin.hor) * ratio / newScale,
+                                         (margin.ver * newScale - moveY) * ratio / newScale + (height + 2 * margin.ver) * ratio / newScale],
                                     ]);
                             }
                         });
@@ -585,9 +585,9 @@ const ExplorerNew = (props) => {
                             gMainView.attr('transform', `translate(${newTransX.toFixed(3)}, ${newTransY.toFixed(3)}) scale(${newScale.toFixed(1)})`);
                             
                             brush.move(gBrush, [
-                                [(2 * margin.hor * newScale - newTransX) * ratio / newScale, (2 * margin.ver * newScale - newTransY) * ratio / newScale],
-                                [(2 * margin.hor * newScale - newTransX) * ratio / newScale + (width + 2 * margin.hor) * ratio / newScale,
-                                 (2 * margin.ver * newScale - newTransY) * ratio / newScale + (height + 2 * margin.ver) * ratio / newScale],
+                                [(margin.hor * newScale - newTransX) * ratio / newScale, (margin.ver * newScale - newTransY) * ratio / newScale],
+                                [(margin.hor * newScale - newTransX) * ratio / newScale + (width + 2 * margin.hor) * ratio / newScale,
+                                 (margin.ver * newScale - newTransY) * ratio / newScale + (height + 2 * margin.ver) * ratio / newScale],
                             ]);
                         }
                     }
@@ -600,9 +600,9 @@ const ExplorerNew = (props) => {
                             gMainView.attr('transform', `translate(${moveX.toFixed(3)}, ${moveY.toFixed(3)}) scale(${newScale.toFixed(1)})`);
         
                             brush.move(gBrush, [
-                                [(2 * margin.hor * newScale - moveX) * ratio / newScale, (2 * margin.ver * newScale - moveY) * ratio / newScale],
-                                [(2 * margin.hor * newScale - moveX) * ratio / newScale + (width + 2 * margin.hor) * ratio / newScale,
-                                 (2 * margin.ver * newScale - moveY) * ratio / newScale + (height + 2 * margin.ver) * ratio / newScale],
+                                [(margin.hor * newScale - moveX) * ratio / newScale, (margin.ver * newScale - moveY) * ratio / newScale],
+                                [(margin.hor * newScale - moveX) * ratio / newScale + (width + 2 * margin.hor) * ratio / newScale,
+                                 (margin.ver * newScale - moveY) * ratio / newScale + (height + 2 * margin.ver) * ratio / newScale],
                             ]);
                     }
                 });

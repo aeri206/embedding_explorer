@@ -6,7 +6,7 @@ import * as d3 from 'd3';
 let xAxis, yAxis, x, y, series, svg, tooltip;
 
 const width = 800;
-const height = 200;
+const height = 150;
 const margin = {top : 30, left : 70, bottom : 30, right : 30};
 
 
@@ -105,7 +105,7 @@ const BottomBarChart = (props) => {
                     tooltip.attr("transform", `translate(${d.offsetX - 30}, ${d.offsetY - 25} )`);
                     tooltip.select("text").text(d.target.getAttribute("text"));
                 })
-                .attr("text", d => `${d.key}: ${(d[1] - d[0]).toFixed(3)}`)
+                .attr("text", d => `${d.key}: ${isCount? parseInt((d[1] - d[0])) : (d[1] - d[0]).toFixed(3)}`)
 
                 svg.append("g")
                     .attr("class", "x-axis")
