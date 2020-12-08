@@ -38,7 +38,7 @@ const BasicInfoTab = (props) => {
         <b>DATASET</b>{spacing(5)}
         <div style={{height:'20px',width:'220px',overflow:'auto'}}>{df_name.toUpperCase()}</div></div>
       <div className="data" style={{height:'30px',width:'310px',overflow:'auto'}}>
-        label{spacing(2)}:{spacing(2)}{JSON.stringify(label_data)}</div>
+        {`label${spacing(2)}:${spacing(2)}${JSON.stringify(label_data)}`}</div>
       
       <div className="keyword">
         <b>EMBEDDING</b>{spacing(5)}
