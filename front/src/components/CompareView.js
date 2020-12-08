@@ -20,7 +20,8 @@ const CompareView = (props) => {
 
     let titleStyle = {
         "marginTop": 14,
-        "fontWeight": 600
+        "fontWeight": 600,
+        "textAlign": 'center'
     }
 
     let divStyle = {

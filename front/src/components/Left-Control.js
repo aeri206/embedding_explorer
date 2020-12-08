@@ -19,14 +19,16 @@ const ControlTab = (props) => {
   }else{ label_data = 'not-exist'; }
 
   const printParam = (obj) => {
-    let txt = '';
+    const items = [];
     for (let x in obj){
-      txt += '<div style="display: flex; padding-bottom:5px">'
-      + `<div style="width: 90px; margin: 0 10px">${x}</div>`
-      + `<input type = "text" name = "${x}" value = "${obj[x]}"`
-      + 'onChange={handleChange} /><br/></div>';
+      items.push(
+        <div style={{display: "flex", paddingBottom:"5px"}}>
+          <div style={{width: "90px", margin: "0 10px"}}>{x}</div>
+          <input type = "text" name = {x} value = {obj[x]} onChange={handleChange}/><br/>
+        </div>
+      )
     }
-    return parse(txt);
+    return items;
   }
   
   const spacing = (num) => {
