@@ -73,6 +73,9 @@ const ExplorerNew = (props) => {
     let contour = useRef([]);
 
 
+    let svgs;
+
+
     function pointsInPolygon(polygon) {
 
         
@@ -110,7 +113,7 @@ const ExplorerNew = (props) => {
     }
 
     const drawPlot = (ratio, prefix) => {
-        let svgs = d3.select(`#${prefix}_${props.dataset}_${props.method}`)
+        svgs = d3.select(`#${prefix}_${props.dataset}_${props.method}`)
         .attr("width", ratio * (width + margin.hor * 2))
         .attr("height", ratio * (height + margin.ver * 2));
 
@@ -239,7 +242,18 @@ const ExplorerNew = (props) => {
     
 
     useEffect(() => {
-        
+
+
+        // d3.select("")
+        console.log(d3.select(`#scatterplot_${props.dataset}_${props.method}`))
+        d3.select(`#scatterplot_${props.dataset}_${props.method}`).selectAll("g").remove();
+        d3.select(`#minimap_${props.dataset}_${props.method}`).selectAll("g").remove();
+        setUpdate(() => false);
+        // if(svgs !== undefined) {
+        //     console.log("remove")
+        //     svgs.selectAll("g").remove();
+        // }
+
         console.log('useEffect1')
 
         drawPlot(1.0, "scatterplot");
@@ -610,7 +624,7 @@ const ExplorerNew = (props) => {
         svgMiniMap.selectAll('.handle').remove();
         svgMiniMap.selectAll('.overlay').remove();
 
-    }, []);
+    }, [props.method]);
    
 
 
@@ -638,6 +652,7 @@ const ExplorerNew = (props) => {
                     dataset={props.dataset}
                     colorScale={colorScale}
                     missingPoints={missingPointsIn}
+                    setMainMethod={props.setMainMethod}
                 />
 
                 <ShepardDiagram
