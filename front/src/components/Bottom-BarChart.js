@@ -6,7 +6,7 @@ import * as d3 from 'd3';
 let xAxis, yAxis, x, y, series, svgLeft, svgRight, tooltipLeft, tooltipRight;
 
 const width = 800;
-const height = 100;
+const height = 150;
 const margin = {top : 10, left : 60, bottom : 30, right : 30};
 
 
@@ -34,15 +34,17 @@ const BottomBarChart = (props) => {
     
     const {data, label, points, update, colorScale} = props;
     let {missingPoints} = props;
+    
 
     const res = label.reduce((a,b)=> (a[b]=0,a),{});
 
-    let cnt_data = [{name:"false", ...res, }, {name:"missing", ...res}];
+    let cnt_data = [{name: "all", ...res}, {name:"false", ...res, }, {name:"missing", ...res}];
     let val_data = [{name:"false", ...res, }, {name:"missing", ...res}];
 
     svgLeft = d3.select("#bottomBarChart").attr("width", `${width / 2}px`);
     svgRight = d3.select("#bottomResultBarChart").attr("width", `${width / 2}px`);
-
+    
+    
 
     useEffect(() => {
         svgLeft.selectAll("g").remove();
@@ -52,13 +54,15 @@ const BottomBarChart = (props) => {
             setVisible(true);
 
             points.forEach(n => {
+                cnt_data[0][data[n].label] += 1;
+
                 if (data[n].missing > 0){ // missing
                     val_data[1][data[n].label] += data[n].missing;
-                    cnt_data[1][data[n].label] += 1;
+                    cnt_data[2][data[n].label] += 1;
                 }
                 if (data[n].false > 0){ 
                     val_data[0][data[n].label] += data[n].false;
-                    cnt_data[0][data[n].label] += 1;
+                    cnt_data[1][data[n].label] += 1;
                 }
             });
 
@@ -67,23 +71,25 @@ const BottomBarChart = (props) => {
                 .range([margin.left, (width - margin.right) / 2]);
 
                 
+            y = d3.scaleBand()
+                .range([margin.top, height - margin.bottom])
+            .padding(`${isCountLeft? 0.08 : 0.2}`);
+
+                
             if (isCountLeft) {
                 series = d3.stack()
                 .keys(label)(cnt_data)
                 .map(d => (d.forEach(v => v.key = d.key), d));
                 x.domain([0,points.length]);
+                y.domain(["missing", "false", "all"])
             }
             else {
                 series = d3.stack()
                 .keys(label)(val_data)
                 .map(d => (d.forEach(v => v.key = d.key), d));
                 x.domain([0, d3.max(val_data.map(d => Object.values(d).reduce((a, b) => a+(isNaN(parseFloat(b))?0:parseFloat(b)))))]);
+                y.domain(["missing", "false"])
             }
-
-            y = d3.scaleBand()
-                .domain(["missing", "false"])
-                .range([margin.top, height - margin.bottom])
-                .padding(0.08);
 
 
             xAxis = g => g
@@ -163,7 +169,8 @@ const BottomBarChart = (props) => {
 
                     x = d3.scaleLinear()
                 .range([margin.left, (width - margin.right) / 2]);
-
+                
+            console.log(missingPoints.length, points.length, cnt_data)
                 
             if (isCountRight) {
                 series = d3.stack()
@@ -181,7 +188,7 @@ const BottomBarChart = (props) => {
             y = d3.scaleBand()
                 .domain(["missing", "false"])
                 .range([margin.top, height - margin.bottom])
-                .padding(0.08);
+                .padding(0.2);
 
 
             xAxis = g => g
@@ -249,7 +256,7 @@ const BottomBarChart = (props) => {
 
     return (
         <div id="detailview">
-            <div className="section-title bottom" style={{width:`${(width / 2) - 140}px`, display:"inline-block"}}>Selected Label Distribution</div>
+            <div className="section-title bottom" style={{width:`${(width / 2) - 140}px`, display:"inline-block"}}>Selected Points Label Distribution</div>
             <select class="selection-info-view" onChange={onChangeLeft} style={{visibility:`${isVisible? "visible":"hidden"}`}}>
                 <option value="count">Count</option>
                 <option value="value">Value</option>
