@@ -41,6 +41,7 @@ const CompareView = (props) => {
                     height = {compareHeight}
                     colorScale = {props.colorScale}
                     missingPoints = {props.missingPoints}
+                    setMainMethod = {props.setMainMethod}
                 />
             ))}
             </div>
@@ -55,6 +56,7 @@ const CompareView = (props) => {
                     height = {compareHeight}
                     colorScale = {props.colorScale}
                     missingPoints = {props.missingPoints}
+                    setMainMethod = {props.setMainMethod}
                 />
             ))}
             </div>

@@ -32,6 +32,19 @@ const CompareViewComponent = (props) => {
     let svgSelectedPoints;
     let svgHeighlightedPoints;
 
+        // changeMainMethod
+    function changeMainMethod() {
+
+        // console.log(props.setMainMethod("hi"));
+        // props.setMainMethod(props.method);
+        console.log(props);
+        props.setMainMethod(props.method)
+        
+
+    }
+
+    
+
     useEffect(() => {
         compareSvg = d3.select("#" + props.method+ "_compare")
                             .attr("width", width + margin.hor * 2)
@@ -66,25 +79,78 @@ const CompareViewComponent = (props) => {
                   .attr("y", 30)
                   .attr("x", 10)
 
-        compareSvg
-            .on("mouseover", function() {
+        d3.select("#" + props.method + "_compare")
+            .on("mouseenter", function() {
                 d3.select(this).append("rect")
+                .attr("id", "select_rect_" + props.method)
                     .attr("fill", "none")
                     .attr("stroke", "black")
                     .attr("stroke-width", 1)
                     .attr("width", props.width + margin.hor * 2)
-                    .attr("height", props.width + margin.ver * 3)
-                
-                console.log(d3.select("#" + props.method + "compare_div"))
-                d3.select("#" + props.method + "_compare_div")
-                  .append("button")
-                  .text("Set as Main Projection!!")
-                  .style("display", "block")
-            })
-            .on("mouseout", function() {
-                d3.select(this).select("rect").remove();
+                    .attr("height", props.width + margin.ver * 2.5)
+                    .attr("transform", "translate(0," + margin.ver * 0.5 + ")")
 
-                d3.select("#" + props.method + "_compare_div")
+                let selection = d3.select(this)
+                  .append("g")
+                  .attr("id", "select_" + props.method);
+                selection.append("rect")
+                  .attr("id", "rect_" + props.method)
+                  .attr("transform", "translate(" + (10) + "," + (props.height + 20) + ")")
+                  .attr("width", 160)
+                  .attr("height", 30)
+                  .attr("rx", 7)
+                  .attr("ry", 7)
+                  .style("stroke", "black")
+                  .attr("fill", "#eeeeee")
+                selection
+                  .on("mouseenter", function() {
+                      d3.select("#rect_" + props.method)
+                        .style("stroke-wdith", 2)
+                        .attr("fill", "#bbbbbb")
+                  })
+                  .on("mouseleave", function() {
+                    d3.select("#rect_" + props.method)
+                      .style("stroke-wdith", 1)
+                      .attr("fill", "#eeeeee")
+                  })
+                  .on("mousedown", function() {
+                      d3.select("#rect_" + props.method)
+                      .style("stroke-wdith", 1)
+                      .attr("fill", "#eeeeee")
+                  })
+                  .on("mouseup", function() {
+                    d3.select("#rect_" + props.method)
+                      .style("stroke-wdith", 2)
+                      .attr("fill", "#bbbbbb")
+                  })
+                  .on("click", function() {
+                      changeMainMethod();
+                  });
+
+                selection.append("text")
+                         .attr("id", "text_" + props.method)
+                         .attr("font-size", 13)
+                         .attr("font-weight", 300)
+                         .attr("transform", "translate(" + (15) + "," + (props.height + margin.ver * 2) + ")")
+                         .text("Set as Main Projection!!")
+                         .style("user-select", "none")
+
+                
+                // console.log(d3.select("#" + props.method + "compare_div"))
+                // d3.select(this)
+                //   .append("button")
+                //   .text("Set as Main Projection!!")
+                //   .style("display", "block")
+                //   .style("position", "relative")
+                //   .style("top", "-30px")
+                //   .style("left", "6px")
+                //   .attr("onclick", "changeMainMethod()")
+            })
+            .on("mouseleave", function() {
+                d3.select(this).select("#select_rect_" + props.method).remove();
+                d3.select(this).select("#select_" + props.method).remove();
+
+                // d3.select(this)
                 //   .select("button").remove();
 
             })
@@ -131,7 +197,7 @@ const CompareViewComponent = (props) => {
 
 
     return (
-        <div id={props.method + "_compare_div"}>
+        <div id={props.method + "_compare_div"} style={{height: "265px"}}>
             <svg id={props.method + "_compare"}>
 
             </svg>
