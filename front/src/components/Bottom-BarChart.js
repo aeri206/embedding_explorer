@@ -137,8 +137,20 @@ const BottomBarChart = (props) => {
                 .attr("y", (d, i) => y(d.data.name))
                 .attr("width", d => x(d[1]) - x(d[0]))
                 .attr("height", y.bandwidth())
-                .on("mouseover", function() { tooltipLeft.style("display", null); })
-                .on("mouseout", function() { tooltipLeft.style("display", "none"); })
+                .on("mouseover", function(e, d) {
+                    tooltipLeft.style("display", null); 
+                    if (d.data.name === "all"){
+                        let contours = document.querySelector(`#scatterplot_contour_point_g_${props.dataset}_${props.method}`);
+                        contours.querySelectorAll("circle").forEach(c => {c.style.opacity = 0.1;});
+                        contours.querySelectorAll(`.label${d.key}`).forEach(c => {c.style.opacity = 1;});
+                    }
+            })
+                .on("mouseout", function(e,d) { tooltipLeft.style("display", "none");
+                if (d.data.name === "all"){
+                    let contours = document.querySelector(`#scatterplot_contour_point_g_${props.dataset}_${props.method}`);
+                    contours.querySelectorAll("circle").forEach(c => {c.style.opacity = 1;});
+                }
+            })
                 .on("mousemove",function(e, d) {
                     tooltipLeft.select("rect").attr("width",`${d.data.name === "all" ? 130 : tooltipMaxLen}`)
                     tooltipLeft.attr("transform", 

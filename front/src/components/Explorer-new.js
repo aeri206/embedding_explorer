@@ -311,7 +311,8 @@ const ExplorerNew = (props) => {
                     .attr("cx", d => 
                         xScale(pointsData[d].coor[0]))
                     .attr("cy", d => yScale(pointsData[d].coor[1]))
-                    .attr("fill", "blue");
+                    .attr("fill", "blue")
+                    .attr("class", d => "label" + pointsData[d].label.toString());
 
             miniContourPoints.selectAll("circle")
                     .data(points)
@@ -633,7 +634,15 @@ const ExplorerNew = (props) => {
                     <svg id={`scatterplot_${props.dataset}_${props.method}`}></svg>
                 </div>
                 <div id="detailview">
-                    <BottomBarChart colorScale={colorScale} data={pointsData} update={update} points={pointsIn} label={label_data} missingPoints={missingPointsIn}/>
+                    <BottomBarChart
+                        colorScale={colorScale}
+                        data={pointsData}
+                        update={update}
+                        points={pointsIn}
+                        label={label_data}
+                        missingPoints={missingPointsIn}
+                        dataset={props.dataset}
+                        method={props.method}/>
                 </div>
             </div>
             <div id="content-right">
