@@ -24,7 +24,7 @@ const ControlTab = (props) => {
       items.push(
         <div style={{display: "flex", paddingBottom:"5px"}}>
           <div style={{width: "90px", margin: "0 10px"}}>{x}</div>
-          <input type = "text" name = {x} value = {obj[x]} onChange={handleChange}/><br/>
+          <input type = "text" name = {x} value = {obj[x]}/><br/>
         </div>
       )
     }
@@ -76,7 +76,7 @@ const ControlTab = (props) => {
         </div>
       <div className="keyword">
         <b style={{marginTop:'4px', height:'20px', width:'120px'}}>DATASET</b>
-        <button onClick={onClickData} style={{width:'200px'}}>Load Original Data</button>
+        <button style={{width:'200px'}}>Load Original Data</button>
       </div>
       <div className="data"  style={{height:'30px',width:'310px',overflow:'auto', fontSize:'15px'}}>
         <div>{`file${spacing(2)}:${spacing(2)}${df_filename}`}</div>
@@ -87,15 +87,15 @@ const ControlTab = (props) => {
         <b style={{marginTop:'4px', height:'20px', width:'120px'}}>EMBEDDING</b>
       </div>
       <div className="keyword">
-        <button onClick={onClickMeta}>Load Meta Data</button>
+        <button>Load Meta Data</button>
         {spacing(2)}
-        <button onClick={onClickEmb}>Load Embedding Data</button>
+        <button>Load Embedding Data</button>
       </div>
       <div className="data"  style={{height:'30px',width:'310px',overflow:'auto', fontSize:'15px'}}>
       {`file${spacing(2)}:${spacing(3)}${emb_filename}`}</div>
 
       <div>
-        <form onSubmit={handleSubmit}>
+        <form>
           {printParam(emb_params)}
           <div style={{marginLeft:"175px"}}>
             <input type="reset" value="Reset" align="right"/>{spacing(2)}

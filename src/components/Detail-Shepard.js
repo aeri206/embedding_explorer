@@ -29,7 +29,7 @@ const ShepardDiagram = (props) => {
   //   return shepard_data;
   // };
   let matrix = [];
-  for (let i = 0; i < 20; i++) {
+  for (let i = 19; i >= 0; i--) {
     let current = []
     for (let j = 0; j < 20; j++) {
       current.push(distance_data[i + "_" + j])

@@ -22,13 +22,13 @@ function App() {
       <div id="body">
         <div id="left-bar">
             <BasicInfoTab
-              method="pca"
+              method={mainMethod}
               dataset="mnist_sampled_10"
               isLabel={true}
               emb_params={embedding_parameters}
             />
             <ControlTab
-              method="pca"
+              method={mainMethod}
               dataset="mnist_sampled_10"
               isLabel={true}
               emb_params={embedding_parameters}

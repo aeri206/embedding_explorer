@@ -1,12 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import * as d3 from 'd3';
 import parse from 'html-react-parser';
 
 const BasicInfoTab = (props) => {
 
-  const df_name = props.dataset;
-  const emb_name = props.method;
-  const emb_params = props.emb_params;
+  let df_name = props.dataset;
+  let emb_name = props.method;
+  let emb_params = props.emb_params;
+
+  useEffect(() => {
+    df_name = props.dataset;
+    emb_name = props.method;
+  }, [props.dataset, props.method])
   
   function labelChart(){
     if (props.isLabel){
@@ -57,11 +62,11 @@ const BasicInfoTab = (props) => {
        </div>
       <div className="keyword">
         <b>DATASET{spacing(5)}</b>
-        <div style={{height:'20px',width:'220px',overflow:'auto'}}>{df_name.toUpperCase()}</div>
+        <div style={{height:'20px',width:'220px',overflow:'auto'}}>{props.dataset.toUpperCase()}</div>
       </div>
       <div className="keyword">
         <b>EMBEDDING{spacing(5)}</b>
-        <div style={{height:'20px',width:'200px',overflow:'auto'}}>{emb_name.toUpperCase()}</div>
+        <div style={{height:'20px',width:'200px',overflow:'auto'}}>{props.method.toUpperCase()}</div>
       </div>
 
       <div className="two-cols">
